@@ -87,90 +87,110 @@ print(X_test.shape)
 print(y_test.shape)
 
 
-#### IMPLEMENT A PERCEPTRON NETWORK ####
+# Implement a perceptron network #
 
-class Perceptron(object):
-    
-    def __init__(self, input_size, lr=0.01, epochs=1000):
-        self.W = np.zeros(input_size+1)               # define the weights vector; add one for the BIAS
-        self.epochs = epochs
-        self.lr = lr
-    
-    def activation_fn(self, x):                       # we are defining a function that will be applied to z; x here only 
-        return 1 if x >0 else 0                       # indicates the argument of the function. #
-    
-    def predict(self, x):
-        z = self.W.T.dot(x)                           # z is dot product between the initial weight vector, made all of zeroes, 
-                                                      # transposed, and the small x vector.
-                                                      # self.W gets updated at each iteration, and so does z. #
-        a = self.activation_fn(z)                     # the activation function defined above. #
-        return a
-    
-    def fit(self, X, d):
-        for _ in range(self.epochs):                  # the underscore is a 'throwaway variable' #
-            for i in range(d.shape[0]):               # d.shape = [r, c], so d.shape[0] returns the rows value of the shape 
-                                                      # vector of d.
-                                                      # in this case, d is 1-dimensional and therefore d.shape = [#,] 
-                                                      # where # is the
-                                                      # number of elements in array d. Therefore, (d.shape[0]) returns 
-                                                      # that number.
-                                                      # because d has 80 elements, this does "for i that goes from 0 to 79". #
-                x = np.insert(X[i], 0, 4)             # inserts in element i of array X, at position 0, the value 1:
-                                                      # this inserts the THRESHOLD(=1) into the input when performing the  
-                                                      # weight update;
-                                                      # change the third argument of the insert function from 1 to 
-                                                      # any other number.
-                                                      # small x is the big X data array plus one column for the bias. #
-                y = self.predict(x)                   # returns either 0 or 1, based on whether the activation function 
-                                                      # a = 0 or a = 1. #
-                e = d[i] - y                          # d is desired, y is predicted, so e is the error #
-                self.W = self.W + self.lr * e * x     # weight update rule #
-                self.lr = self.lr - (self.lr*0.01)    # decrease learning rate by 1% at each iteration
+accuracy_vector=np.arange(0, 1, dtype=np.float)              # creates a float data type vector of 1 element, starting at 0   
+print(accuracy_vector)
+
+for num in range(100):
+  
+        random_num = randint(1, 100)                                    # Pick a random number between 1 and 100.
+
+        print(random_num)                                     
+
+        class Perceptron(object):
+
+            def __init__(self, input_size, lr=0.1, epochs=1000):
+                self.W = np.zeros(input_size+1)                         # define the weights vector; add one for the BIAS
+                self.epochs = epochs
+                self.lr = lr
+
+            def activation_fn(self, x):                   # we are defining a function that will be applied to z; x here only 
+                return 1 if x >0 else 0                       # indicates the argument of the function. #
+
+            def predict(self, x):
+                z = self.W.T.dot(x)                  # z is dot product between the initial weight vector, made all of zeroes, 
+                                                     # transposed, and the "small x" vector.
+                                                        # self.W gets updated at each iteration, and so does z. #
+                a = self.activation_fn(z)                     # the activation function defined above. #
+                return a
+
+            def fit(self, X, d):
+                for _ in range(self.epochs):                # the underscore is a 'throwaway variable' #
+                    for i in range(d.shape[0]):         # d.shape = [r, c], so d.shape[0] returns the rows value of the shape 
+                                                                  # vector of d.
+                                                              # in this case, d is 1-dimensional and therefore d.shape = [#,] 
+                                                                  # where # is the
+                                                              # number of elements in array d. Therefore, (d.shape[0]) returns 
+                                                                  # that number. because d has 80 elements, this does
+                                                                  #  "for i that goes from 0 to 79". #
+                        x = np.insert(X[i], 0, random_num)    # inserts in element i of array X, at position 0, the value 4:
+                                                          # this inserts the THRESHOLD(=random_num) into the input when   
+                                                          # performing the weight update; NB: x = np.inserts(X[i], position,  
+                                                              # value) gives back a VECTOR x; this process is iterated 
+                                                              # through all i examples. We may change the third argument 
+                                                              # of the insertfunction to any random number. #
+                        y = self.predict(x)                   # returns either 0 or 1, based on whether the activation function 
+                                                                  # a = 0 or a = 1. #
+                        e = d[i] - y                          # d is desired, y is predicted, so e is the error #
+                        self.W = self.W + self.lr * e * x     # weight update rule #
+                        self.lr = self.lr - (self.lr*0.1/self.epochs)  # if Learning Rate decreases with epochs it will converge!
+
+        if __name__ == '__main__':
+            X = train_data[: , 1:]
+            d = train_data[: , 0]
+
+            perceptron = Perceptron(input_size=22)
+            perceptron.fit(X, d)
+            print(perceptron.W)
+
+
+            # TEST #
+
+        X = X_test
+        d = y_test                                           # d stands for desired (test)
+        w = perceptron.W
+        outcome = np.zeros(len(d))                            # create an empty vector that will be filled by our outcome predictions 
+
+
+
+        N = (X.shape[0])
+        X = np.c_[ np.ones(N), X]                              # we need to insert a column with all 1's to the left of X
+                                                                   # just like above we added a column to the X train matrix.
+        print(X.shape)
+        print(w.shape)
+
+
+        for i in range(X.shape[0]):               
+            outcome[i] = w.T.dot(X[i])
+
+
+        outcome_bin = outcome
+
+
+
+        outcome_bin[outcome_bin > 0] = 1
+        outcome_bin[outcome_bin <= 0] = 0
+
+        print(outcome_bin == y_test)
+
+        print(outcome_bin)
+        print(y_test)
+
+        print(d.shape)    
+        print(outcome.shape)
+
+        accuracy=sum(outcome_bin == y_test)/(len(y_test))
+        
                 
-if __name__ == '__main__':
-    X = train_data[: , 1:]
-    d = train_data[: , 0]
-    
-    perceptron = Perceptron(input_size=22)
-    perceptron.fit(X, d)
-    print(perceptron.W)
-   
-   
-### TEST ###
-
-X = X_test
-d = y_test                                           # d stands for desired (test)
-w = perceptron.W
-outcome = np.zeros(len(d))                            # create an empty vector that will be filled by our outcome predictions 
-
-
-
-N = (X.shape[0])
-X = np.c_[ np.ones(N), X]                              # we need to insert a column with all 1's to the left of X
-
-print(X.shape)
-print(w.shape)
-
-    
-for i in range(X.shape[0]):               
-    outcome[i] = w.T.dot(X[i])
-
-    
-outcome_bin = outcome
-
-
-
-outcome_bin[outcome_bin > 0] = 1
-outcome_bin[outcome_bin <= 0] = 0
-
-print(outcome_bin == y_test)
-
-print(outcome_bin)
-print(y_test)
-
-print(d.shape)    
-print(outcome.shape)
-
-accuracy=sum(outcome_bin == y_test)/(len(y_test))
-print("The accuracy of the classification algorithm is:" , accuracy*100,"%")
-
+        accuracy_vector = np.insert(accuracy_vector, num, accuracy)
+        
+        print(num)
+        print(accuracy_vector)
+        print(accuracy_vector[num])
+        print(accuracy_vector[num-1])
+        
+        if accuracy_vector[num]<accuracy_vector[num-1]:
+            print("the accuracy of the algorithm is", accuracy_vector[num-1], "using a threshold of", random_num)    
+            break
+        
