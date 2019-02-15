@@ -1,58 +1,58 @@
-Classification with SPECT dataset
+# Classification with SPECT dataset
 
-SPECT is a good data set for testing ML algorithms; it has 267 instances that are descibed by 23 binary attributes.
+# SPECT is a good data set for testing ML algorithms; it has 267 instances that are descibed by 23 binary attributes.
 
-The dataset describes diagnosing of cardiac Single Proton Emission Computed Tomography (SPECT) images.
+# The dataset describes diagnosing of cardiac Single Proton Emission Computed Tomography (SPECT) images.
 
-Each of the patients is classified into two categories: normal and abnormal.
+# Each of the patients is classified into two categories: normal and abnormal.
 
-The database of 267 SPECT image sets (patients) was processed to extract features that summarize the original SPECT images.
+# The database of 267 SPECT image sets (patients) was processed to extract features that summarize the original SPECT images.
 
-As a result, 44 continuous feature pattern was created for each patient.
+# As a result, 44 continuous feature pattern was created for each patient.
 
-The pattern was further processed to obtain 22 binary feature patterns.
+# The pattern was further processed to obtain 22 binary feature patterns.
 
-The CLIP3 algorithm was used to generate classification rules from these patterns.
+# The CLIP3 algorithm was used to generate classification rules from these patterns.
 
-The CLIP3 algorithm generated rules that were 84.0% accurate (as compared with cardilogists' diagnoses).
+# The CLIP3 algorithm generated rules that were 84.0% accurate (as compared with cardilogists' diagnoses).
 
-. Number of Instances: 267
+# . Number of Instances: 267
 
-. Number of Attributes: 23 (22 binary + 1 binary class)
+# . Number of Attributes: 23 (22 binary + 1 binary class)
 
-Class Distribution:
+# Class Distribution:
 
--- entire data Class # examples 0 55 1 212
+# -- entire data Class # examples 0 55 1 212
 
--- training dataset Class # examples 0 40 1 40
+# -- training dataset Class # examples 0 40 1 40
 
--- testing dataset Class # examples 0 15 1 172
+# -- testing dataset Class # examples 0 15 1 172
 
-Attribute Information:
+# Attribute Information:
 
-OVERALL_DIAGNOSIS: 0,1 (class attribute, binary)
-F1: 0,1 (the partial diagnosis 1, binary)
-F2: 0,1 (the partial diagnosis 2, binary)
-F3: 0,1 (the partial diagnosis 3, binary)
-F4: 0,1 (the partial diagnosis 4, binary)
-F5: 0,1 (the partial diagnosis 5, binary)
-F6: 0,1 (the partial diagnosis 6, binary)
-F7: 0,1 (the partial diagnosis 7, binary)
-F8: 0,1 (the partial diagnosis 8, binary)
-F9: 0,1 (the partial diagnosis 9, binary)
-F10: 0,1 (the partial diagnosis 10, binary)
-F11: 0,1 (the partial diagnosis 11, binary)
-F12: 0,1 (the partial diagnosis 12, binary)
-F13: 0,1 (the partial diagnosis 13, binary)
-F14: 0,1 (the partial diagnosis 14, binary)
-F15: 0,1 (the partial diagnosis 15, binary)
-F16: 0,1 (the partial diagnosis 16, binary)
-F17: 0,1 (the partial diagnosis 17, binary)
-F18: 0,1 (the partial diagnosis 18, binary)
-F19: 0,1 (the partial diagnosis 19, binary)
-F20: 0,1 (the partial diagnosis 20, binary)
-F21: 0,1 (the partial diagnosis 21, binary)
-F22: 0,1 (the partial diagnosis 22, binary)
+# OVERALL_DIAGNOSIS: 0,1 (class attribute, binary)
+# F1: 0,1 (the partial diagnosis 1, binary)
+# F2: 0,1 (the partial diagnosis 2, binary)
+# F3: 0,1 (the partial diagnosis 3, binary)
+# F4: 0,1 (the partial diagnosis 4, binary)
+# F5: 0,1 (the partial diagnosis 5, binary)
+# F6: 0,1 (the partial diagnosis 6, binary)
+# F7: 0,1 (the partial diagnosis 7, binary)
+# F8: 0,1 (the partial diagnosis 8, binary)
+# F9: 0,1 (the partial diagnosis 9, binary)
+# F10: 0,1 (the partial diagnosis 10, binary)
+# F11: 0,1 (the partial diagnosis 11, binary)
+# F12: 0,1 (the partial diagnosis 12, binary)
+# F13: 0,1 (the partial diagnosis 13, binary)
+# F14: 0,1 (the partial diagnosis 14, binary)
+# F15: 0,1 (the partial diagnosis 15, binary)
+# F16: 0,1 (the partial diagnosis 16, binary)
+# F17: 0,1 (the partial diagnosis 17, binary)
+# F18: 0,1 (the partial diagnosis 18, binary)
+# F19: 0,1 (the partial diagnosis 19, binary)
+# F20: 0,1 (the partial diagnosis 20, binary)
+# F21: 0,1 (the partial diagnosis 21, binary)
+# F22: 0,1 (the partial diagnosis 22, binary)
 
 ### IMPORT LIBRARIES AND SET UP DATA ###
 
@@ -62,6 +62,7 @@ import pandas as pd
 import numpy as np
 from numpy import recfromcsv
 import urllib
+from random import *
 
 url="https://archive.ics.uci.edu/ml/machine-learning-databases/spect/SPECT.train"
 raw_data_train=urllib.request.urlopen(url)
@@ -86,6 +87,8 @@ y_test = test_data[: , 0]                             # Test data target outcome
 print(X_test.shape)
 print(y_test.shape)
 
+
+# TRAIN  #
 
 # Implement a perceptron network #
 
@@ -145,7 +148,7 @@ for num in range(100):
             print(perceptron.W)
 
 
-            # TEST #
+# TEST #
 
         X = X_test
         d = y_test                                           # d stands for desired (test)
@@ -190,7 +193,6 @@ for num in range(100):
         print(accuracy_vector[num])
         print(accuracy_vector[num-1])
         
-        if accuracy_vector[num]<accuracy_vector[num-1]:
-            print("the accuracy of the algorithm is", accuracy_vector[num-1], "using a threshold of", random_num)    
+        if accuracy_vector[num]<accuracy_vector[num-1] and accuracy_vector[num-1]>0.9 : 
+            print("the accuracy of the algorithm is at least", accuracy_vector[num-1], "reached in", num, "epochs")    
             break
-        
