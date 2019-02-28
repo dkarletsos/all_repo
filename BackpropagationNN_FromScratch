@@ -1,6 +1,4 @@
-#### TO TEST THE FILE JUST PLACE data.csv IN THE CURRENT WORKING DIRECTORY AND CHANGE THE PATH AT LINE 14 ####
-
-import numpy as np
+#### TO TEST THE FILE JUST PLACE data.csv IN THE CURRENT WORKING DIRECTORY AND CHANGE THE PATH AT LINE 12 ####
 
 import os
 import csv
@@ -10,7 +8,6 @@ from numpy import recfromcsv
 import urllib
 import random
 from random import *
-
 
 df = np.loadtxt("C:/Users/USER/.jupyter/data.csv", delimiter= "," , dtype=object, skiprows=0) 
 
