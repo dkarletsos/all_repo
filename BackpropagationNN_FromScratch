@@ -1,4 +1,4 @@
-#### TO TEST THE FILE JUST PLACE iris.csv IN THE CURRENT WORKING DIRECTORY AND CHANGE THE PATH AT LINE 14 ####
+#### TO TEST THE FILE JUST PLACE data.csv IN THE CURRENT WORKING DIRECTORY AND CHANGE THE PATH AT LINE 14 ####
 
 import numpy as np
 
@@ -12,13 +12,13 @@ import random
 from random import *
 
 
-df = np.loadtxt("C:/Users/USER/.jupyter/iris.csv", delimiter= "," , dtype=object, skiprows=0) 
+df = np.loadtxt("C:/Users/USER/.jupyter/data.csv", delimiter= "," , dtype=object, skiprows=0) 
 
 
 matrix = df
-matrix[matrix == 'Iris-setosa'] = 1.0
-matrix[matrix == 'Iris-versicolor'] = 2.0
-matrix[matrix == 'Iris-virginica'] = 3.0
+matrix[matrix == 'class_A'] = 1.0
+matrix[matrix == 'class_B'] = 2.0
+matrix[matrix == 'class_C'] = 3.0
 matrix = matrix.astype(np.float)
 np.random.shuffle(matrix)
 X_data = np.array(matrix[: , 0:4])
