@@ -1,0 +1,1429 @@
+** DIFFERENCE-IN-DIFFERENCE DESIGN **
+
+** We try to use the National Health Survey in order to identify the effects of changes in drinking and smoking legal age on smoking and drinking 
+** behavior of affected vs. non-affected adolescents.
+** We look both at long-term health effects as well as effects on the average age of starting smoking and drinking.
+** By using the NHS we can identify the year of birth and the CCAA (Comunidade Autonoma: Region) so that we can classify individuals as treated 
+** if they turn 16 two years before the implementation of the policy in that region.
+** The main change for drinking in several CCAA's is in 1997, therefore we will compare the difference in outcomes of individuals born in 1980-1979 
+** and 1982-1983 in treated and non-treated regions.
+** The outcomes could be short-term (age at which they began drinking regularly) and long-term to see if that lead to more consumption of alcohol 
+** after several years and/or more diseases like cardiovascular, etc..
+** We could do the same for smoking but at the national level. Smoking was allowed at age 16 until 2003, when the age of smoking increased until 18. 
+** Therefore, using a similar strategy to define treatment and control groups (without distinguishing by ccaa) we could see whether individuals 
+** who are 16 or 17 before the introduction of the policy smoke more now, began smoking at earlier ages and have a higher probability of suffering 
+** from a smoking-related diseases than individuals who turn 16, 17 after the policy.
+
+
+*PERMANENT MODIFICATIONS TO DATABASE
+
+*1. Drop Ceuta y Melilla (DONE: 2006, 2011)
+*2. Generate PolicyYear variable (DONE: 2006, 2011)
+
+gen PolicyYear=.
+replace PolicyYear=1991 if CCAA==15
+replace PolicyYear=1995 if (CCAA==7 | CCAA==8)
+replace PolicyYear=1997 if (CCAA==1 | CCAA==4 | CCAA==5 | CCAA==6 | CCAA==10 | CCAA==11 | CCAA==14)
+replace PolicyYear=1998 if CCAA==16
+replace PolicyYear=2000 if (CCAA==13 | CCAA==17)
+replace PolicyYear=2001 if CCAA==2
+replace PolicyYear=2002 if CCAA==9
+replace PolicyYear=2010 if CCAA==12
+replace PolicyYear=2013 if CCAA==3
+count if PolicyYear==.
+
+*/
+
+
+* 2006 WAVE *
+
+set more off
+use "C:\Users\Visiting\Desktop\Drinking Age Policy\ENS2006.dta", clear
+cd "C:\Users\Visiting\Desktop\Drinking Age Policy"
+tab CCAA, gen(region)
+global Regions1991 region15
+global Regions1995 region7 region8
+global Regions1997 region1 region4 region5 region6 region10 region11 region14
+global Regions1998 region16
+global Regions2000 region13 region 17
+global Regions2001 region2
+global Regions2002 region9
+global Regions2010 region12
+global Regions2013 region3
+replace EdadBebe=. if EdadBebe>30
+gen gender=1 if sexo==1
+replace gender=0 if gender==.
+gen yob= AnyoNacim
+replace yob= anyo-edad if yob==.
+gen drink12=Bebe12m==1
+tab(yob), gen(cohort)
+global CohortsALL cohort66 cohort67 cohort68 cohort69 cohort70 cohort71 cohort72 cohort73 cohort74 cohort75 cohort76 cohort77 cohort78 cohort79 cohort80 cohort81 cohort82 cohort83 cohort84 cohort85 cohort86 cohort87 cohort88
+global Cohorts1991 cohort66 cohort67 cohort68 cohort69 cohort70 cohort71 cohort74 cohort75 cohort76 cohort77 cohort78 cohort79 
+global Cohorts1995 cohort70 cohort71 cohort72 cohort73 cohort74 cohort75 cohort78 cohort79 cohort80 cohort81 cohort82 cohort83 
+global Cohorts1997 cohort72 cohort73 cohort74 cohort75 cohort76 cohort77 cohort80 cohort81 cohort82 cohort83 cohort84 cohort85
+global Cohorts1998 cohort73 cohort74 cohort75 cohort76 cohort77 cohort78 cohort81 cohort82 cohort83 cohort84 cohort85 cohort86 
+global Cohorts2000 cohort75 cohort76 cohort77 cohort78 cohort79 cohort80 cohort83 cohort84 cohort85 cohort86 cohort87 cohort88 
+gen drink2=Bebe2s==1
+gen drink=0
+replace drink=1 if (drink12==1 | drink2==1 | (EdadBebe!=. & EdadBebe!=99))
+gen agedrbef18=0 if EdadBebe>=18 & EdadBebe!=.
+replace agedrbef18=1 if EdadBebe<18
+gen NeverDrink=0
+replace NeverDrink=1 if (drink12==0 & drink2==0 & EdadBebe==.)
+gen EverDrink=.
+replace EverDrink=1 if NeverDrink==0
+replace EverDrink=0 if NeverDrink==1
+replace VinoVeces=. if VinoVeces==99
+replace VinoCopas=. if VinoCopas==99
+replace CervezaVeces=. if CervezaVeces==99
+replace CervezaCopas=. if CervezaCopas==99
+replace AperitivosVeces=. if AperitivosVeces==99
+replace AperitivosCopas=. if AperitivosCopas==99
+replace SidraVeces=. if SidraVeces==99
+replace SidraCopas=. if SidraCopas==99
+replace LicoresVeces=. if LicoresVeces==99
+replace LicoresCopas=. if LicoresCopas==99
+replace WhiskyVeces=. if WhiskyVeces==99
+replace WhiskyCopas=. if WhiskyCopas==99
+
+gen totCopasVino=VinoVeces*VinoCopas
+replace totCopasVino= (totCopasVino*365) if Vino==1
+replace totCopasVino= (totCopasVino*52) if Vino==2
+replace totCopasVino= (totCopasVino*12) if Vino==3
+replace totCopasVino= (totCopasVino*6) if Vino==4
+replace totCopasVino= (totCopasVino*1) if Vino==5
+gen VinoYes=0
+replace VinoYes=1 if (totCopasVino>0 & totCopasVino!=. & (Vino==1 | Vino==2))
+
+gen totCopasCerveza=CervezaVeces*CervezaCopas
+replace totCopasCerveza= (totCopasCerveza*7) if Cerveza==1
+replace totCopasCerveza= (totCopasCerveza/4) if Cerveza==3
+replace totCopasCerveza= (totCopasCerveza/8) if Cerveza==4
+replace totCopasCerveza= (totCopasCerveza/52) if Cerveza==5
+gen CervezaYes=0
+replace CervezaYes=1 if (totCopasCerveza>0 & totCopasCerveza!=. & (Cerveza==1 | Cerveza==2))
+
+gen totCopasVermut=AperitivosVeces*AperitivosCopas
+replace totCopasVermut= (totCopasVermut*365) if Aperitivos==1
+replace totCopasVermut= (totCopasVermut*52) if Aperitivos==2
+replace totCopasVermut= (totCopasVermut*12) if Aperitivos==3
+replace totCopasVermut= (totCopasVermut*6) if Aperitivos==4
+replace totCopasVermut= (totCopasVermut*1) if Aperitivos==5
+gen VermutYes=0
+replace VermutYes=1 if (totCopasVermut>0 & totCopasVermut!=. & (Vermut==1 | Vermut==2))
+
+gen totCopasSidra=SidraVeces*SidraCopas
+replace totCopasSidra= (totCopasSidra*365) if Sidra==1
+replace totCopasSidra= (totCopasSidra*52) if Sidra==2
+replace totCopasSidra= (totCopasSidra*12) if Sidra==3
+replace totCopasSidra= (totCopasSidra*6) if Sidra==4
+replace totCopasSidra= (totCopasSidra*1) if Sidra==5
+gen SidraYes=0
+replace SidraYes=1 if (totCopasSidra>0 & totCopasSidra!=. & (Sidra==1 | Sidra==2))
+
+gen totCopasLicores=LicoresVeces*LicoresCopas
+replace totCopasLicores= (totCopasLicores*365) if Licores==1
+replace totCopasLicores= (totCopasLicores*52) if Licores==2
+replace totCopasLicores= (totCopasLicores*12) if Licores==3
+replace totCopasLicores= (totCopasLicores*6) if Licores==4
+replace totCopasLicores= (totCopasLicores*1) if Licores==5
+gen LicoresYes=0
+replace LicoresYes=1 if (totCopasLicores>0 & totCopasLicores!=. & (Licores==1 | Licores==2))
+
+gen totCopasWhisky=WhiskyVeces*WhiskyCopas
+replace totCopasWhisky= (totCopasWhisky*365) if Whisky==1
+replace totCopasWhisky= (totCopasWhisky*52) if Whisky==2
+replace totCopasWhisky= (totCopasWhisky*12) if Whisky==3
+replace totCopasWhisky= (totCopasWhisky*6) if Whisky==4
+replace totCopasWhisky= (totCopasWhisky*1) if Whisky==5
+gen WhiskyYes=0
+replace WhiskyYes=1 if (totCopasWhisky>0 & totCopasWhisky!=. & (Whisky==1 | Whisky==2))
+
+gen OtherAlcoholYes=0
+replace OtherAlcoholYes=1 if (VinoYes==1 | VermutYes==1 | SidraYes==1 | LicoresYes==1 | WhiskyYes==1)
+egen totCopasOtherAlcohol= ((rsum(totCopasVino totCopasVermut totCopasSidra totCopasLicores totCopasWhisky))/52)
+
+
+
+
+
+* All Regions *
+
+preserve
+gen treat=.
+replace treat=1 if ((1976 <= yob & yob <= 1981) & (CCAA==15)) | ((1980 <= yob & yob <= 1985) & (CCAA==7 | CCAA==8)) | ((1982 <= yob & yob <= 1987) & (CCAA==1 | CCAA==4 |CCAA==5 |CCAA==6 |CCAA==10 |CCAA==11 | CCAA==14)) | ((1983 <= yob & yob <= 1988) & (CCAA==16)) | ((1985 <= yob & yob <= 1990) & (CCAA==13 |CCAA==17)) | ((1986 <= yob & yob <= 1991) & (CCAA==2)) | ((1987 <= yob & yob <= 1992) & (CCAA==9)) | ((1995 <= yob & yob <= 2000) & (CCAA==12)) | ((1998 <= yob & yob <= 2003) & (CCAA==3))
+replace treat=0 if ((1968 <= yob & yob <= 1973) & (CCAA==15)) | ((1972 <= yob & yob <= 1977) & (CCAA==7 | CCAA==8)) | ((1974 <= yob & yob <= 1979) & (CCAA==1 | CCAA==4 |CCAA==5 |CCAA==6 |CCAA==10 |CCAA==11 | CCAA==14)) | ((1975 <= yob & yob <= 1980) & (CCAA==16)) | ((1977 <= yob & yob <= 1982) & (CCAA==13 |CCAA==17)) | ((1978 <= yob & yob <= 1983) & (CCAA==2)) | ((1979 <= yob & yob <= 1984) & (CCAA==9)) | ((1987 <= yob & yob <= 1992) & (CCAA==12)) | ((1990 <= yob & yob <= 1995) & (CCAA==3))
+drop if treat==.
+reg drink treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+count if ((EdadBebe==16 | EdadBebe==17) & (treat==1))
+count if ((EdadBebe==16 | EdadBebe==17) & (treat==0))
+reg CervezaYes treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat gender region* $CohortsALL, select(EverDrink treat gender region* $CohortsALL) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat==1
+sum yob if treat==0
+restore
+
+* Regions that never change used as Control, Regions that change Policy in 1991 used as Treatment *
+
+* All Regions that change in 1991 (Navarra) *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==15)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1991-15) & yob <= (1991-10)) 
+replace treat2=0 if (yob <= (1991-18) & yob >= (1991-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Cohorts1991, select(EverDrink treat1 treat2 policy gender $Cohorts1991) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==15)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1991-15) & yob <= (1991-10)) 
+replace treat2=0 if (yob <= (1991-18) & yob >= (1991-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob if treat1==0, xline(1981)) (line mdrink12 yob if treat1==1, xline(1981))
+
+twoway (line mdrink12 yob, by(treat1) xline(1975))
+twoway (line mdrink2 yob, by(treat1) xline(1975))
+twoway (line medadbebe yob, by(treat1) xline(1975))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1975))
+twoway (scatter mdrink12 yob, by(treat1) xline(1975))
+twoway (scatter mdrink2 yob, by(treat1) xline(1975))
+twoway (scatter medadbebe yob, by(treat1) xline(1975))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1975))
+restore
+*/
+
+
+
+
+* Regions that never change used as Control, Regions that change Policy in 1995 used as Treatment *
+
+* All Regions that change in 1995 *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7 | CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, select(EverDrink treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7 | CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1979))
+twoway (line mdrink2 yob, by(treat1) xline(1979))
+twoway (line medadbebe yob, by(treat1) xline(1979))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1979))
+twoway (scatter mdrink12 yob, by(treat1) xline(1979))
+twoway (scatter mdrink2 yob, by(treat1) xline(1979))
+twoway (scatter medadbebe yob, by(treat1) xline(1979))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1979))
+restore
+*/
+
+* Only Castilla y Leòn *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, select(EverDrink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1979))
+twoway (line mdrink2 yob, by(treat1) xline(1979))
+twoway (line medadbebe yob, by(treat1) xline(1979))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1979))
+twoway (scatter mdrink12 yob, by(treat1) xline(1979))
+twoway (scatter mdrink2 yob, by(treat1) xline(1979))
+twoway (scatter medadbebe yob, by(treat1) xline(1979))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1979))
+restore
+*/
+
+* Only Castilla la Mancha *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Cohorts1995, select(EverDrink treat1 treat2 policy gender $Cohorts1995) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1979))
+twoway (line mdrink2 yob, by(treat1) xline(1979))
+twoway (line medadbebe yob, by(treat1) xline(1979))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1979))
+twoway (scatter mdrink12 yob, by(treat1) xline(1979))
+twoway (scatter mdrink2 yob, by(treat1) xline(1979))
+twoway (scatter medadbebe yob, by(treat1) xline(1979))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1979))
+restore
+*/
+
+
+* Regions that never change used as Control, Regions that change Policy in 1997 used as Treatment *
+
+* All Regions that change in 1997 *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==1 | CCAA==4 | CCAA==5 | CCAA==6 | CCAA==10 | CCAA==11 | CCAA==14)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, select(EverDrink treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==1 | CCAA==4 | CCAA==5 | CCAA==6 | CCAA==10 | CCAA==11 | CCAA==14)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1981))
+twoway (line mdrink2 yob, by(treat1) xline(1981))
+twoway (line medadbebe yob, by(treat1) xline(1981))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1981))
+twoway (scatter mdrink12 yob, by(treat1) xline(1981))
+twoway (scatter mdrink2 yob, by(treat1) xline(1981))
+twoway (scatter medadbebe yob, by(treat1) xline(1981))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1981))
+restore
+*/
+
+
+* Cantabria, Extremadura, Murcia*
+
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6 | CCAA==11 | CCAA==14)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, select(EverDrink treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6 | CCAA==11 | CCAA==14)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1981))
+twoway (line mdrink2 yob, by(treat1) xline(1981))
+twoway (line medadbebe yob, by(treat1) xline(1981))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1981))
+twoway (scatter mdrink12 yob, by(treat1) xline(1981))
+twoway (scatter mdrink2 yob, by(treat1) xline(1981))
+twoway (scatter medadbebe yob, by(treat1) xline(1981))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1981))
+restore
+*/
+
+
+* Cantabria & Extremadura *
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6 | CCAA==11)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Cohorts1997, select(EverDrink treat1 treat2 policy gender $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6 | CCAA==11)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1981))
+twoway (line mdrink2 yob, by(treat1) xline(1981))
+twoway (line medadbebe yob, by(treat1) xline(1981))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1981))
+twoway (scatter mdrink12 yob, by(treat1) xline(1981))
+twoway (scatter mdrink2 yob, by(treat1) xline(1981))
+twoway (scatter medadbebe yob, by(treat1) xline(1981))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1981))
+restore
+*/
+
+
+
+
+* Only Cantabria *
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Cohorts1997, select(EverDrink treat1 treat2 policy gender $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1981))
+twoway (line mdrink2 yob, by(treat1) xline(1981))
+twoway (line medadbebe yob, by(treat1) xline(1981))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1981))
+twoway (scatter mdrink12 yob, by(treat1) xline(1981))
+twoway (scatter mdrink2 yob, by(treat1) xline(1981))
+twoway (scatter medadbebe yob, by(treat1) xline(1981))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1981))
+restore
+*/
+
+
+* Regions that never change used as Control, Regions that change Policy in 2000 used as Treatment *
+
+* All Regions that change in 2000 *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==13 | CCAA==17)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (2000-15) & yob <= (2000-10)) 
+replace treat2=0 if (yob <= (2000-18) & yob >= (2000-23))
+drop if treat2==.
+gen policy=treat1*treat2
+regress drink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress agedrbef18 treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress NeverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress CervezaYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress totCopasCerveza treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress OtherAlcoholYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress totCopasOtherAlcohol treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, select(EverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==13 | CCAA==17)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (2000-15) & yob <= (2000-10)) 
+replace treat2=0 if (yob <= (2000-18) & yob >= (2000-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1984))
+twoway (line mdrink2 yob, by(treat1) xline(1984))
+twoway (line medadbebe yob, by(treat1) xline(1984))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1984))
+twoway (scatter mdrink12 yob, by(treat1) xline(1984))
+twoway (scatter mdrink2 yob, by(treat1) xline(1984))
+twoway (scatter medadbebe yob, by(treat1) xline(1984))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1984))
+restore
+*/
+
+* Only Madrid *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==13)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (2000-15) & yob <= (2000-10)) 
+replace treat2=0 if (yob <= (2000-18) & yob >= (2000-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, select(EverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==13)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (2000-15) & yob <= (2000-10)) 
+replace treat2=0 if (yob <= (2000-18) & yob >= (2000-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1984))
+twoway (line mdrink2 yob, by(treat1) xline(1984))
+twoway (line medadbebe yob, by(treat1) xline(1984))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1984))
+twoway (scatter mdrink12 yob, by(treat1) xline(1984))
+twoway (scatter mdrink2 yob, by(treat1) xline(1984))
+twoway (scatter medadbebe yob, by(treat1) xline(1984))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1984))
+restore
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+* 2011 WAVE *
+
+use "C:\Users\Visiting\Desktop\Drinking Age Policy\ENS2011.dta", clear
+cd "C:\Users\Visiting\Desktop\Drinking Age Policy"
+tab CCAA, gen(region)
+global Regions1991 region15
+global Regions1995 region7 region8
+global Regions1997 region1 region4 region5 region6 region10 region11 region14
+global Regions1998 region16
+global Regions2000 region13 region 17
+global Regions2001 region2
+global Regions2002 region9
+global Regions2010 region12
+global Regions2013 region3
+replace EdadBebe=. if EdadBebe>30
+gen gender=1 if SEXOa==1
+replace gender=0 if gender==.
+gen yob= 2011-EDADa
+count if yob==.
+tab(yob), gen(cohort)
+global CohortsALL cohort60 cohort61 cohort62 cohort63 cohort64 cohort65 cohort66 cohort67 cohort68 cohort69 cohort70 cohort71 cohort72 cohort73 cohort74 cohort75 cohort76 cohort77 cohort78 cohort79 cohort80 cohort81 cohort82 
+global Cohorts1991 cohort60 cohort61 cohort62 cohort63 cohort64 cohort65 cohort68 cohort69 cohort70 cohort71 cohort72 cohort73
+global Cohorts1995 cohort64 cohort65 cohort66 cohort67 cohort68 cohort69 cohort72 cohort73 cohort74 cohort75 cohort76 cohort77
+global Cohorts1997 cohort66 cohort67 cohort68 cohort69 cohort70 cohort71 cohort74 cohort75 cohort76 cohort77 cohort78 cohort79 
+global Cohorts1998 cohort67 cohort68 cohort69 cohort70 cohort71 cohort72 cohort75 cohort76 cohort77 cohort78 cohort79 cohort80 
+global Cohorts2000 cohort69 cohort70 cohort71 cohort72 cohort73 cohort74 cohort77 cohort78 cohort79 cohort80 cohort81 cohort82 
+gen drink12=T121==1
+gen drink2=T120==1
+gen drink=0
+replace drink=1 if (drink12==1 | drink2==1 | (EdadBebe!=. & EdadBebe!=99))
+gen agedrbef18=0 if EdadBebe>=18 & EdadBebe!=.
+replace agedrbef18=1 if EdadBebe<18
+gen NeverDrink=0
+replace NeverDrink=1 if (drink12==0 & drink2==0 & EdadBebe==.)
+gen EverDrink=.
+replace EverDrink=1 if NeverDrink==0
+replace EverDrink=0 if NeverDrink==1
+
+gen totCopasVino=.
+replace totCopasVino= ((T124Vin_1 + T124Vin_2 + T124Vin_3 + T124Vin_4 + T124Vin_5 + T124Vin_6 + T124Vin_7) * 52)
+gen VinoYes=0
+replace VinoYes=1 if (totCopasVino>0 & totCopasVino!=.)
+
+gen totCopasCerveza=.
+replace totCopasCerveza= ((T124Cer_1 + T124Cer_2 + T124Cer_3 + T124Cer_4 + T124Cer_5 + T124Cer_6 + T124Cer_7) * 52)
+gen CervezaYes=0
+replace CervezaYes=1 if (totCopasCerveza>0 & totCopasCerveza!=.)
+
+gen totCopasVermut=.
+replace totCopasVermut= ((T124Vermut_1 + T124Vermut_2 + T124Vermut_3 + T124Vermut_4 + T124Vermut_5 + T124Vermut_6 + T124Vermut_7) * 52)
+gen VermutYes=0
+replace VermutYes=1 if (totCopasVermut>0 & totCopasVermut!=.)
+
+gen totCopasSidra=.
+replace totCopasSidra= ((T124Sidra_1 + T124Sidra_2 + T124Sidra_3 + T124Sidra_4 + T124Sidra_5 + T124Sidra_6 + T124Sidra_7) * 52)
+gen SidraYes=0
+replace SidraYes=1 if (totCopasSidra>0 & totCopasSidra!=.)
+
+gen totCopasLicores=.
+replace totCopasLicores= ((T124Lic_1 + T124Lic_2 + T124Lic_3 + T124Lic_4 + T124Lic_5 + T124Lic_6 + T124Lic_7) * 52)
+gen LicoresYes=0
+replace LicoresYes=1 if (totCopasLicores>0 & totCopasLicores!=.)
+
+gen totCopasWhisky=.
+replace totCopasWhisky= ((T124Comb_1 + T124Comb_2 + T124Comb_3 + T124Comb_4 + T124Comb_5 + T124Comb_6 + T124Comb_7) * 52)
+gen WhiskyYes=0
+replace WhiskyYes=1 if (totCopasWhisky>0 & totCopasWhisky!=.)
+
+gen OtherAlcoholYes=0
+replace OtherAlcoholYes=1 if (VinoYes==1 | VermutYes==1 | SidraYes==1 | LicoresYes==1 | WhiskyYes==1)
+egen totCopasOtherAlcohol= rsum(totCopasVino totCopasVermut totCopasSidra totCopasLicores totCopasWhisky)
+
+
+* All Regions *
+
+preserve
+gen treat=.
+replace treat=1 if ((1976 <= yob & yob <= 1981) & (CCAA==15)) | ((1980 <= yob & yob <= 1985) & (CCAA==7 | CCAA==8)) | ((1982 <= yob & yob <= 1987) & (CCAA==1 | CCAA==4 |CCAA==5 |CCAA==6 |CCAA==10 |CCAA==11 | CCAA==14)) | ((1983 <= yob & yob <= 1988) & (CCAA==16)) | ((1985 <= yob & yob <= 1990) & (CCAA==13 |CCAA==17)) | ((1986 <= yob & yob <= 1991) & (CCAA==2)) | ((1987 <= yob & yob <= 1992) & (CCAA==9)) | ((1995 <= yob & yob <= 2000) & (CCAA==12)) | ((1998 <= yob & yob <= 2003) & (CCAA==3))
+replace treat=0 if ((1968 <= yob & yob <= 1973) & (CCAA==15)) | ((1972 <= yob & yob <= 1977) & (CCAA==7 | CCAA==8)) | ((1974 <= yob & yob <= 1979) & (CCAA==1 | CCAA==4 |CCAA==5 |CCAA==6 |CCAA==10 |CCAA==11 | CCAA==14)) | ((1975 <= yob & yob <= 1980) & (CCAA==16)) | ((1977 <= yob & yob <= 1982) & (CCAA==13 |CCAA==17)) | ((1978 <= yob & yob <= 1983) & (CCAA==2)) | ((1979 <= yob & yob <= 1984) & (CCAA==9)) | ((1987 <= yob & yob <= 1992) & (CCAA==12)) | ((1990 <= yob & yob <= 1995) & (CCAA==3))
+drop if treat==.
+reg drink treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+sum EdadBebe if treat==1
+sum EdadBebe if treat==0
+count if ((EdadBebe==16 | EdadBebe==17) & (treat==1))
+count if ((EdadBebe==16 | EdadBebe==17) & (treat==0))
+reg CervezaYes treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat gender region* $CohortsALL, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat gender region* $CohortsALL, select(EverDrink treat gender region* $CohortsALL) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat==1
+sum yob if treat==0
+restore
+
+* Regions that never change used as Control, Regions that change Policy in 1991 used as Treatment *
+
+* All Regions that change in 1991 (Navarra) *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==15)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1991-15) & yob <= (1991-10)) 
+replace treat2=0 if (yob <= (1991-18) & yob >= (1991-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Cohorts1991, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Cohorts1991, select(EverDrink treat1 treat2 policy gender $Cohorts1991) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==15)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1991-15) & yob <= (1991-10)) 
+replace treat2=0 if (yob <= (1991-18) & yob >= (1991-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1975))
+twoway (line mdrink2 yob, by(treat1) xline(1975))
+twoway (line medadbebe yob, by(treat1) xline(1975))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1975))
+twoway (scatter mdrink12 yob, by(treat1) xline(1975))
+twoway (scatter mdrink2 yob, by(treat1) xline(1975))
+twoway (scatter medadbebe yob, by(treat1) xline(1975))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1975))
+restore
+*/
+
+* Regions that never change used as Control, Regions that change Policy in 1995 used as Treatment *
+
+* All Regions that change in 1995 *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7 | CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995, select(EverDrink treat1 treat2 policy gender $Regions1995 $Regions2010 $Regions2013 $Cohorts1995) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7 | CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1979))
+twoway (line mdrink2 yob, by(treat1) xline(1979))
+twoway (line medadbebe yob, by(treat1) xline(1979))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1979))
+twoway (scatter mdrink12 yob, by(treat1) xline(1979))
+twoway (scatter mdrink2 yob, by(treat1) xline(1979))
+twoway (scatter medadbebe yob, by(treat1) xline(1979))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1979))
+restore
+*/
+
+
+* Only Castilla y Leòn *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, select(EverDrink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==7)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1979))
+twoway (line mdrink2 yob, by(treat1) xline(1979))
+twoway (line medadbebe yob, by(treat1) xline(1979))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1979))
+twoway (scatter mdrink12 yob, by(treat1) xline(1979))
+twoway (scatter mdrink2 yob, by(treat1) xline(1979))
+twoway (scatter medadbebe yob, by(treat1) xline(1979))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1979))
+restore
+*/
+
+* Only Castilla la Mancha *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995, select(EverDrink treat1 treat2 policy gender $Regions2010 $Regions2013 $Cohorts1995) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1979))
+twoway (line mdrink2 yob, by(treat1) xline(1979))
+twoway (line medadbebe yob, by(treat1) xline(1979))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1979))
+twoway (scatter mdrink12 yob, by(treat1) xline(1979))
+twoway (scatter mdrink2 yob, by(treat1) xline(1979))
+twoway (scatter medadbebe yob, by(treat1) xline(1979))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1979))
+restore
+*/
+
+
+* Regions that never change used as Control, Regions that change Policy in 1997 used as Treatment *
+
+* All Regions that change in 1997 *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==1 | CCAA==4 | CCAA==5 | CCAA==6 | CCAA==10 | CCAA==11 | CCAA==14)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997, select(EverDrink treat1 treat2 policy gender $Regions1997 $Regions2010 $Regions2013 $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+/**GRAPHS
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==8)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1995-15) & yob <= (1995-10)) 
+replace treat2=0 if (yob <= (1995-18) & yob >= (1995-23))
+sort yob treat1
+by yob treat1: egen mdrink12=mean(drink12)
+by yob treat1: egen mdrink2=mean(drink2)
+by yob treat1: egen medadbebe=mean(EdadBebe)
+by yob treat1: egen mtotalcoholvolyear=mean(totAlcoholVolYear)
+drop if yob<1950
+twoway (line mdrink12 yob, by(treat1) xline(1979))
+twoway (line mdrink2 yob, by(treat1) xline(1979))
+twoway (line medadbebe yob, by(treat1) xline(1979))
+twoway (line mtotalcoholvolyear yob, by(treat1) xline(1979))
+twoway (scatter mdrink12 yob, by(treat1) xline(1979))
+twoway (scatter mdrink2 yob, by(treat1) xline(1979))
+twoway (scatter medadbebe yob, by(treat1) xline(1979))
+twoway (scatter mtotalcoholvolyear yob, by(treat1) xline(1979))
+restore
+*/
+
+
+
+* Cantabria, Extremadura, Murcia*
+
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6 | CCAA==11 | CCAA==14)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997, select(EverDrink treat1 treat2 policy gender region6 region11 region14 $Regions2010 $Regions2013 $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+
+* Cantabria & Extremadura *
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6 | CCAA==11)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997, select(EverDrink treat1 treat2 policy gender region6 region11 $Regions2010 $Regions2013 $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+* Only Cantabria *
+preserve 
+gen treat1=.
+replace treat1=1 if (CCAA==6)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (1997-15) & yob <= (1997-10)) 
+replace treat2=0 if (yob <= (1997-18) & yob >= (1997-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender $Cohorts1997, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender $Cohorts1997, select(EverDrink treat1 treat2 policy gender $Cohorts1997) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+
+* Regions that never change used as Control, Regions that change Policy in 2000 used as Treatment *
+
+* All Regions that change in 2000 *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==13 | CCAA==17)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (2000-15) & yob <= (2000-10)) 
+replace treat2=0 if (yob <= (2000-18) & yob >= (2000-23))
+drop if treat2==.
+gen policy=treat1*treat2
+regress drink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress agedrbef18 treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress NeverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress CervezaYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress totCopasCerveza treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress OtherAlcoholYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+regress totCopasOtherAlcohol treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, select(EverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
+
+
+* Only Madrid *
+
+preserve
+gen treat1=.
+replace treat1=1 if (CCAA==13)
+replace treat1=0 if (CCAA==12 | CCAA==3)
+drop if treat1==.
+gen treat2=.
+replace treat2=1 if (yob >= (2000-15) & yob <= (2000-10)) 
+replace treat2=0 if (yob <= (2000-18) & yob >= (2000-23))
+drop if treat2==.
+gen policy=treat1*treat2
+reg drink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg agedrbef18 treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg NeverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg CervezaYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasCerveza treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg OtherAlcoholYes treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+reg totCopasOtherAlcohol treat1 treat2 policy gender region12 region3 $Cohorts2000, cluster(yob)
+outreg2 using exceloutput, append excel dec(3)
+heckman EdadBebe treat1 treat2 policy gender region12 region3 $Cohorts2000, select(EverDrink treat1 treat2 policy gender region12 region3 $Cohorts2000) iterate(50)
+outreg2 using exceloutput, append excel dec(3)
+sum yob if treat2==1
+sum yob if treat2==0
+tab yob treat1
+restore
