@@ -1,0 +1,1744 @@
+	********************************************************************************
+	** Dimitris Karletsos
+	** Lesotho
+	** SRH HIV GBV Integration Assessment
+	** June 2018
+	********************************************************************************
+		
+		
+	* SET UP DIRECTORIES *
+		
+	cd "C:\Users\USER\Desktop\Dimitris\SRH_integration\Results"
+	set more off
+	ssc install tabout
+	ssc install catplot
+
+	
+	* CREATE NEW VARIABLES *
+	
+	replace caseid = _n
+
+	gen age_18_24=1 if age>=18 & age <25
+	gen age_25_34=1 if age>=25 & age <35
+	gen age_35_44=1 if age>=35 & age <45
+	gen age_45_54=1 if age>=45 & age <55
+	gen age_55_64=1 if age>=55 & age <65
+	gen age_65plus=1 if age>=65
+	gen age_group=.
+	replace age_group=1 if age_18_24==1
+	replace age_group=2 if age_25_34==1
+	replace age_group=3 if age_35_44==1
+	replace age_group=4 if age_45_54==1
+	replace age_group=5 if age_55_64==1
+	replace age_group=6 if age_65plus==1
+
+	gen not_satisf=.
+	replace not_satisf=1 if satisfaction==1 | satisfaction==2
+	replace not_satisf=0 if satisfaction==4 | satisfaction==5
+	
+	gen what_received_17 = what_received__1
+	label var what_received_17 "Other services"
+
+	gen what_service_17 = what_service__1
+	label var what_service_17 "Other services"
+
+	
+
+	* LABEL VARIABLES *
+	
+	label variable starttime "Start time"
+	label variable endtime "End time"
+	label variable deviceid "Device ID"
+	label variable subscriberid "Subscriber ID"
+	label variable simid "SIM ID"
+	label variable devicephonenum "Device phone number" 
+	label variable username "Username"
+	label variable duration "Duration"
+	label variable caseid "Case ID"
+	label variable formdef_version "Form version"
+	
+	label variable key "Unique submission ID"
+	
+	label variable v1_date "Date of visit"
+	
+	label variable datacollector "Data collector's name"
+	label define datacollector 1 "Delile Mahlala" 2 "Immaculate Belempi" 3 "Itumeleng M D Tshabalala" 4 "Kelane Fokothi" 5 "Komantsi Borotho" 6 "Limpho Molao" 7 "Mabasia T.C. Aporele-Letuka" 8 "Malineo Posholi" 9 "Mamoshoeshoe Matlotlo" 10 "Mapuseletso Phaaroe" 11 "Marelebohile Mabuzela" 12 "Mary Motumi" 13 "Masebeo Koto" 14 "Maselone Mabusane" 15 "Matefo Chabalala" 16 "Matlhabeli Makepe" 17 "Nkamoheleng Mpoeea Sehloho" 18 "Nkeme Sehalahala" 19 "Nteboheng Rosemary Tjobe Maina" 20 "Ntsepeng Tsita" 21 "Palesa Mapeete Moshoeshoe" 22 "Paramente Masakale" 23 "Pinki Rajake" 24 "Rebecca Maeli" -1 "Other (Specify)"
+	label values datacollector datacollector
+	label variable datacollector_o "Data collector's name (Other)"
+	
+	label variable vc "Interviewer: Read the consent statement below to the interviewee prior to conduc"
+	label define vc 1 "Yes, consent was provided" 0 "No, consent was denied"
+	label values vc vc
+
+	label variable district "Facility district"
+	label define district 1 "Maseru" 2 "Berea" 3 "Leribe" 4 "Butha-Buthe" 5 "Mokhotlong" 6 "Thaba-Tseka" 7 "Qacha's Nek" 8 "Quthing" 9 "Mohale's Hoek" 10 "Mafeteng"
+	label values district district
+
+	label variable fac_name_maseru "Facility name"
+	label define fac_name_maseru 1 "ABIA (ST JOSEPHS) H/C" 2 "BOTS'ABELO LEPROSY HOSPITAL" 3 "DOMICILIARY H/C" 4 "FATIMA H/C" 5 "GATEWAY CLINIC (QMMH)" 6 "HA SENG H/C" 7 "HA-TLALI H/C" 8 "KENA H/C" 9 "KORO KORO H/C" 10 "LIKALANENG H/C" 11 "LIKOTSI FILTER CLINIC" 12 "MAKOANYANE MILITARY HOSPITAL" 13 "MARAKABEI H/C" 14 "BAYLOR H/C" 15 "MASERU CORRECTIONAL SERVICES H/C" 16 "MASERU PRIVATE HOSPITAL" 17 "MASERU SDA H/C" 18 "MATSIENG H/C" 19 "MATUKENG H/C" 20 "MOFOKA H/C" 21 "MOHALE H/C" 22 "MOHLOMI MENTAL HOSPITAL" 23 "NAZARETH H/C" 24 "PAKI H/C" 25 "PSHATLELLA H/C" 26 "QOALING FILTER CLINIC" 27 "QUEEN MAMOHATO MEMORIAL HOSPITAL" 28 "R.L.D.F. H/C" 29 "SCOTT MISSION HOSPITAL" 30 "SEMONKONG H/C" 31 "SENKATANA H/C" 32 "ST BARNABAS (MASITE) H/C" 33 "ST BENEDICT H/C" 34 "ST BERNARD H/C" 35 "ST JOSEPHS HOSPITAL" 36 "ST LEO H/C" 37 "ST LEONARD H/C" 38 "ST PETER CLAVER (TSA OENENG) H/C" 39 "ST RODRIGUE H/C" 40 "THABA-BOSIU H/C" 41 "THAMAE H/C" -1 "Other (Specify)"
+	label values fac_name_maseru fac_name_maseru
+
+	label variable fac_name_berea "Facility name"
+	label define fac_name_berea 1 "BEREA GOVT HOSPITAL" 2 "BETHANY MISSION H/C" 3 "GOOD SHEPHARD H/C" 4 "IMMACULATE CONCEPTION H/C" 5 "KHUBETSOANA H/C" 6 "KOALI H/C" 7 "KOLOJANE H/C" 8 "MABOTE FILTER CLINIC" 9 "MAHLATSA H/C" 10 "MALUTI HOSPITAL" 11 "MAPHELENG H/C" 12 "MAQHAKA (HOLY FAMILY) H/C" 13 "PILOT H/C" 14 "SEBEDIA H/C" 15 "SION H/C" 16 "ST DAVID H/C" 17 "ST MAGDALENA H/C" 18 "ST THERESA (BELA-BELA) H/C" -1 "BEREA CORRECTIONAL SERVICES H/C"
+	label values fac_name_berea fac_name_berea
+
+	label variable fac_name_leribe "Facility name"
+	label define fac_name_leribe 1 "EMMANUEL H/C" 2 "FOBANE H/C" 3 "KHABO H/C" 4 "LEJONE H/C" 5 "LERIBE CORRECTIONAL SERVICES H/C" 6 "LINOTSING H/C" 7 "LITTLE FLOWER H/C" 8 "LOUIS GERARD H/C" 9 "MAHOBONG H/C" 10 "MAHOBONG HOLY TRINITY H/C" 11 "MAMOHAU MISSION HOSPITAL" 12 "MAPUTSOE FILTER CLINIC" 13 "MAPUTSOE SDA H/C" 14 "MARYLAND H/C" 15 "MATLAMENG H/C" 16 "MOTEBANG HOSPITAL" 17 "OUR LADY OF LOURDES/MOSITI H/C" 18 "PALAMA H/C" 19 "PEKA H/C" 20 "PONTMAIN H/C" 21 "SEETSA H/C" 22 "SEPINARE H/C" 23 "SESHOTE H/C" 24 "ST ANNE H/C" 25 "ST DENIS H/C" 26 "ST MARGRET H/C" 27 "ST MONICAS H/C" 28 "ST ROSE H/C" 29 "THABA-PHATSOA H/C" -1 "HA MOSITI H/C"
+	label values fac_name_leribe fac_name_leribe
+
+	label variable fac_name_bbuthe "Facility name"
+	label define fac_name_bbuthe 1 "BOIKETSISO H/C" 2 "BOTHA-BOTHE GOVT HOSPITAL" 3 "LINAKENG H/C" 4 "MAKHUNOANE H/C" 5 "MOTETE H/C" 6 "MUELA SITE H/C" 7 "NGOAJANE/KHATIBE H/C" 8 "RAMPAI H/C" 9 "SEBOCHE HOSPITAL" 10 "ST PAUL H/C" 11 "ST PETERS MOTENG H/C" 12 "TSIME H/C" -1 "Other (Specify)"
+	label values fac_name_bbuthe fac_name_bbuthe
+
+	label variable fac_name_mokho "Facility name"
+	label define fac_name_mokho 1 "LIBIBING H/C" 2 "LINAKANENG H/C" 3 "MALEFILOANE H/C" 4 "MAPHOLANENG H/C" 5 "MOEKETSANE H/C" 6 "MOKHOTLONG HOSPITAL" 7 "MOLIKALIKO H/C" 8 "ST JAMES H/C" 9 "ST MARTIN H/C" 10 "ST PETER'S H/C" -1 "MOKHOTLONG CORRECTIONAL SERVICES H/C"
+	label values fac_name_mokho fac_name_mokho
+
+	label variable fac_name_thabats "Facility name"
+	label define fac_name_thabats -1 "THABA TSEKA CORRECTIONAL SERVICES H/C" 1 "AURAY H/C" 2 "HA LEPHOI H/C" 3 "HA MOKOTO H/C" 4 "HA POPA H/C" 5 "KATSE H/C" 6 "KOLBERG/KHOHLONTSO H/C" 7 "LINAKENG H/C" 8 "MAFA H/C" 9 "MOHLANAPENG H/C" 10 "MONTMARTRE H/C" 11 "PARAY MISSION HOSPITAL" 12 "SEHONG-HONG H/C" 13 "ST JAMES MISSION HOSPITAL" 14 "ST THERESA H/C" 15 "THABA-TSEKA H/C"
+	label values fac_name_thabats fac_name_thabats
+
+	label variable fac_name_qacha "Facility name"
+	label define fac_name_qacha 1 "HERMITAGE H/C" 2 "MACHABENG HOSPITAL" 3 "MATEBENG H/C" 4 "MELIKANE H/C" 5 "MOHLAPISO H/C" 6 "RANKAKALA H/C" 7 "SACRED HEART H/C" 8 "SEHLABA-THEBE H/C" 9 "SEKAKE H/C" 10 "ST FRANCIS H/C" 11 "TEBELLONG HOSPITAL" -1 "Other (Specify)"
+	label values fac_name_qacha fac_name_qacha
+
+	label variable fac_name_quthing "Facility name"
+	label define fac_name_quthing 1 "DILLI-DILLI H/C" 2 "HA MAKOAE H/C" 3 "MAQOKHO H/C" 4 "MPHAKI H/C" 5 "QUTHING GOVT HOSPITAL" 6 "ST GABRIEL H/C" 7 "ST MATTHEWS H/C" 8 "TSATSANE H/C" 9 "VILLA MARIA H/C" -1 "Other (Specify)"
+	label values fac_name_quthing fac_name_quthing
+
+	label variable fac_name_mhoek "Facility name"
+	label define fac_name_mhoek 1 "BETHEL H/C" 2 "HA TSEPO H/C" 3 "HOLY CROSS H/C" 4 "LIPHIRING H/C" 5 "LITHIPENG H/C" 6 "MOFUMAHALI OA ROSALI H/C" 7 "MOHALE'S HOEK CORRECTIONAL SERVICES H/C" 8 "MOHALINYANE H/C" 9 "MOOTSINYANA H/C" 10 "MORIFI H/C" 11 "MPHARANE H/C" 12 "NTSEKHE HOSPITAL" 13 "PHAMONG H/C" 14 "ST CLARE H/C" -1 "Other (Specify)"
+	label values fac_name_mhoek fac_name_mhoek
+
+	label variable fac_name_mafet "Facility name"
+	label define fac_name_mafet 1 "EMMAUS H/C" 2 "KOLO H/C" 3 "LECO-OP H/C" 4 "LITSOENENG H/C" 5 "MAFETENG GOVT HOSPITAL" 6 "MALEALEA H/C" 7 "MASEMOUSE H/C" 8 "MATELILE H/C" 9 "MOTSEKUOA H/C" 10 "MOUNT TABOR H/C" 11 "MT OLIVET H/C" 12 "RIBANENG H/C" 13 "SAMARIA H/C" 14 "SEKAMENG H/C" 15 "ST ANDREW H/C" 16 "THABA TSOEU H/C" 17 "THABANA-MORENA H/C" 18 "TSAKHOLO H/C" -1 "Other (Specify)"
+	label values fac_name_mafet fac_name_mafet
+
+	label variable fac_name_o "Facility name (Other)"
+	
+	label variable age "Age of the respondent"
+	
+	label variable sex "Sex of the respondent"
+	label define sex 1 "Male" 2 "Female"
+	label values sex sex
+
+	label define services 1 "Family Planning services" 2 "STIs related services" 3 "Maternal and Newborn Care" 4 "GBV related services" 5 "Abortion related services" 6 "HIV Counselling and Testing" 7 "Treatment preparedness" 8 "HIV monitoring and/or treatment" 9 "HIV prevention" 10 "Condom provision services" 11 "PMTCT services" 12 "Economic assistance" 13 "Psycho-social support" 14 "Nutrition support" 15 "Gynaecological services" 16 "Immunization services"
+
+	label define services_oth 1 "Family Planning services" 2 "STIs related services" 3 "Maternal and Newborn Care" 4 "GBV related services" 5 "Abortion related services" 6 "HIV Counselling and Testing" 7 "Treatment preparedness" 8 "HIV monitoring and/or treatment" 9 "HIV prevention" 10 "Condom provision services" 11 "PMTCT services" 12 "Economic assistance" 13 "Psycho-social support" 14 "Nutrition support" 15 "Gynaecological services" 16 "Immunization services" 17 "Other services"
+	
+	label variable what_service "1. Please tell me what services you came for today?"
+	label variable what_service_1 "Came to the facility for Family Planning services"
+	label define yesno 1 "Yes" 0 "No"
+	label value what_service_1 yesno
+	label variable what_service_2 "Came to the facility for prevention and management of STIs"
+	label value what_service_2 yesno
+	label variable what_service_3 "Came to the facility for Maternal and Newborn Care"
+	label value what_service_3 yesno
+	label variable what_service_4 "Came to the facility for prevention and management of Gender-Based Violence"
+	label value what_service_4 yesno
+	label variable what_service_5 "Came to the facility for prevention of unsafe abortion and  management of post-abortion care"
+	label value what_service_5 yesno
+	label variable what_service_6 "Came to the facility for HIV Counselling and Testing"
+	label value what_service_6 yesno
+	label variable what_service_7 "Came to the facility for treatment preparedness"
+	label value what_service_7 yesno
+	label variable what_service_8 "Came to the facility for HIV monitoring and/or treatment"
+	label value what_service_8 yesno
+	label variable what_service_9 "Came to the facility for HIV prevention services"
+	label value what_service_9 yesno
+	label variable what_service_10 "Came to the facility to receive services related to condom provision"
+	label value what_service_10 yesno
+	label variable what_service_11 "Came to the facility for PMTCT services"
+	label value what_service_11 yesno
+	label variable what_service_12 "Came to the facility for economic assistance"
+	label value what_service_12 yesno
+	label variable what_service_13 "Came to the facility for psycho-social support"
+	label value what_service_13 yesno
+	label variable what_service_14 "Came to the facility for nutrition support"
+	label value what_service_14 yesno
+	label variable what_service_15 "Came to the facility for routine gynaecological examination"
+	label value what_service_15 yesno
+	label variable what_service_16 "Came to the facility for immunization services"
+	label value what_service_16 yesno
+	label variable what_service__1 "Other (specify)"
+	label variable what_service_97 "Refused to answer"
+	label variable what_service__9 "Don’t know"
+	label variable what_service_o "Other, specify"
+	
+	label variable what_received "2. What services did you receive today at this facility?"
+	label variable what_received_1 "Received Family Planning services"
+	label value what_received_1 yesno
+	label variable what_received_2 "Received prevention and management of STIs services"
+	label value what_received_2 yesno
+	label variable what_received_3 "Received Maternal and Newborn Care services"
+	label value what_received_3 yesno
+	label variable what_received_4 "Received services on prevention and management of gender-based violence"
+	label value what_received_4 yesno
+	label variable what_received_5 "Received services on prevention of unsafe abortion or management of post-abortion care"
+	label value what_received_5 yesno
+	label variable what_received_6 "Received HIV Counselling and Testing"
+	label value what_received_6 yesno
+	label variable what_received_7 "Received services related to treatment preparedness"
+	label value what_received_7 yesno
+	label variable what_received_8 "Received HIV monitoring and/or treatment services"
+	label value what_received_8 yesno
+	label variable what_received_9 "Received HIV prevention services"
+	label value what_received_9 yesno
+	label variable what_received_10 "Received services related to condom provision"
+	label value what_received_10 yesno
+	label variable what_received_11 "Received PMTCT services"
+	label value what_received_11 yesno
+	label variable what_received_12 "Received economic assistance services"
+	label value what_received_12 yesno
+	label variable what_received_13 "Received psycho-social support"
+	label value what_received_13 yesno
+	label variable what_received_14 "Received nutrition support"
+	label value what_received_14 yesno
+	label variable what_received_15 "Received routine gynaecological examination"
+	label value what_received_15 yesno
+	label variable what_received_16 "Received immunization services"
+	label value what_received_16 yesno
+	label variable what_received__1 "Other (specify)"
+	label variable what_received_97 "Refused to answer"
+	label variable what_received__9 "Don’t know"
+	label variable what_received_o "Other, specify"
+	
+	label variable referred_extra_yn "3a. Were you referred to any other services than those for which you came?"
+	label define referred_extra_yn 1 "Yes" 0 "No"
+	label values referred_extra_yn referred_extra_yn
+
+	label variable got_all_service "3b. Did you get all of the services you wanted today?"
+	label define got_all_service 0 "No" 1 "Yes" -9 "Not Sure" -1 "Other"
+	label values got_all_service got_all_service
+	label variable got_all_service_o "Other, specify"
+	
+	label variable want_other_service "3c. What other services would you have liked to get at this facility today?"
+	label variable want_other_service_1 "Still need: Family Planning services"
+	label value want_other_service_1 yesno
+	label variable want_other_service_2 "Still need: services related to STIs prevention and management"
+	label value want_other_service_2 yesno
+	label variable want_other_service_3 "Still need: Maternal and newborn care services"
+	label value want_other_service_3 yesno
+	label variable want_other_service_4 "Still need: Gender-Based Violence related services"
+	label value want_other_service_4 yesno
+	label variable want_other_service_5 "Still need: services related to prevention of unsafe abortion and  management of post-abortion care"
+	label value want_other_service_5 yesno
+	label variable want_other_service_6 "Still need: HIV counselling and testing"
+	label value want_other_service_6 yesno
+	label variable want_other_service_7 "Still need: treatment preparedness services"
+	label value want_other_service_7 yesno
+	label variable want_other_service_8 "Still need: HIV monitoring and/or treatment services"
+	label value want_other_service_8 yesno
+	label variable want_other_service_9 "Still need: HIV prevention services"
+	label value want_other_service_9 yesno
+	label variable want_other_service_10 "Still need: services related to condom provision"
+	label value want_other_service_10 yesno
+	label variable want_other_service_11 "Still need: PMTCT services"
+	label value want_other_service_11 yesno
+	label variable want_other_service_12 "Still need: economic assistance services"
+	label value want_other_service_12 yesno
+	label variable want_other_service_13 "Still need: psycho-social support"
+	label value want_other_service_13 yesno
+	label variable want_other_service_14 "Still need: nutrition support"
+	label value want_other_service_14 yesno
+	label variable want_other_service_15 "Still need: routine gynaecological examination"
+	label value want_other_service_15 yesno
+	label variable want_other_service_16 "Still need: immunization services"
+	label value want_other_service_16 yesno
+	label variable want_other_service__1 "Other (specify)"
+	label variable want_other_service_97 "Refused to answer"
+	label variable want_other_service__9 "Don’t know"
+	label variable want_other_service_o "Other, specify"
+	
+	label variable why_not_got "3d. Why did you not receive all the services you wanted?"
+	label variable why_not_got_1 "Cost"
+	label variable why_not_got_2 "Service not available"
+	label variable why_not_got_3 "I didn’t have time"
+	label variable why_not_got_4 "Nurse/Doctor didn’t have time"
+	label variable why_not_got_5 "I didn’t feel comfortable requesting that service"
+	label variable why_not_got_6 "I didn’t know if the service was available to me"
+	label variable why_not_got_7 "Stockout of drugs or commodities"
+	label variable why_not_got__1 "Other (specify)"
+	label variable why_not_got_97 "Refused to answer"
+ 	label variable why_not_got__9 "Don’t know"
+	label variable why_not_got_o "Other, specify"
+	
+	label variable pref_same_fac "4. Do you prefer sexual and reproductive health and HIV services at the same facility, or do you prefer different facilities?"
+	label define pref_same_fac 1 "Prefer same facility and same site" 2 "Prefer same facility but different site" 3 "Prefer different facility" 0 "Don't have a preference about it" -9 "Donâ€™t know" -1 "Other (specify)"
+	label values pref_same_fac pref_same_fac
+	label variable pref_same_fac_o "Other, specify"
+	label variable pref_same_fac_spec "4a. Why?"
+
+	label variable fac_benefits "5a. What do you think may be some of the possible benefits of receiving all these services at the same facility at one time?"
+	label variable fac_benefits_1 "Reduce number of trips to facility"
+	label variable fac_benefits_2 "Improve efficiency of services"
+	label variable fac_benefits_3 "Reduce transportation costs"
+	label variable fac_benefits_4 "Reduce fees"
+	label variable fac_benefits_5 "Reduce waiting time"
+	label variable fac_benefits_6 "Good opportunity to access additional services"
+	label variable fac_benefits_7 "Reduce stigma for HIV"
+	label variable fac_benefits__9 "Don’t know"
+	label variable fac_benefits__1 "Other (specify)"
+	label variable fac_benefits_o "Other, specify"
+	label variable fac_benefits_stigma "Why do you think it would reduce stigma for HIV?"
+	
+	label variable fac_disadvant "5b. What do you think may be some of the possible disadvantages of receiving all"
+	label variable fac_disadvant_1 "Fear of stigma and discrimination"
+	label variable fac_disadvant_2 "Fear of less confidentiality"
+	label variable fac_disadvant_3 "Embarrassment to talk about HIV with  provider of same village/ neighbourhood"
+	label variable fac_disadvant_4 "Increase client waiting time"
+	label variable fac_disadvant_5 "Facility staff will be too busy"
+	label variable fac_disadvant_6 "Decreased quality of service"
+	label variable fac_disadvant__9 "Don’t know"
+	label variable fac_disadvant__1 "Other (specify)"	
+	label variable fac_disadvant_o "Other, specify"
+	
+	label variable pref_same_pers "6. Do you prefer sexual and reproductive health and HIV services from the same provider?"
+	label define pref_same_pers 1 "Prefer SRH and HIV services from the same provider" 2 "Prefer SRH and HIV services from two different providers" 0 "Don't have a preference about it" -9 "Don't know" -1 "Other (specify)"
+	label values pref_same_pers pref_same_pers
+	label variable pref_same_pers_o "Other, specify"
+	label variable pref_same_pers_spec "6a. Why?"
+	
+	label variable pers_benefits "7a. What do you think may be some of the possible benefits of receiving all these services from the same provider at one time?"
+	label variable pers_benefits_o "Other, specify"
+	label variable pers_benefits_1 "Reduce number of trips to facility"
+	label variable pers_benefits_2 "Improve efficiency of services"
+	label variable pers_benefits_3 "Reduce transportation costs"
+	label variable pers_benefits_4 "Reduce fees"
+	label variable pers_benefits_5 "Reduce waiting time"
+	label variable pers_benefits_6 "Good opportunity to access additional services"
+	label variable pers_benefits_7 "Reduce stigma for HIV"
+	label variable pers_benefits__9 "Don’t know"
+	label variable pers_benefits__1 "Other (specify)"
+	label variable pers_benefits_stigma "Why do you think it would reduce stigma for HIV?"
+	
+	label variable pers_disadvant "7b. What do you think may be some of the possible disadvantages of receiving all"
+	label variable pers_disadvant_1 "Fear of stigma and discrimination"
+	label variable pers_disadvant_2 "Fear of less confidentiality"
+	label variable pers_disadvant_3 "Embarrassment to talk about HIV with  provider of same village/ neighbourhood"
+	label variable pers_disadvant_4 "Increase client waiting time"
+	label variable pers_disadvant_5 "Facility staff will be too busy"
+	label variable pers_disadvant_6 "Decreased quality of service"
+	label variable pers_disadvant__9 "Don’t know"
+	label variable pers_disadvant__1 "Other (specify)"
+	label variable pers_disadvant_o "Other, specify"
+	
+	label variable provider_said "8. Please tell me: which of the following your provider mentioned today?"
+	label variable provider_said_1 "Family planning"
+	label variable provider_said_2 "Use of condoms to prevent unintended pregnancy"
+	label variable provider_said_3 "Use of condoms to prevent HIV/STIs"
+	label variable provider_said_4 "Use of female condoms"
+	label variable provider_said_5 "STIs management"
+	label variable provider_said_6 "HIV prevention"
+	label variable provider_said_7 "Relationships"
+	label variable provider_said_8 "Sexuality"
+	label variable provider_said_9 "Counselling and testing for HIV"
+	label variable provider_said_10 "Preventing transmission  of HIV to your “baby”"
+	label variable provider_said_11 "Breast cancer screening"
+	label variable provider_said_12 "Cervical cancer screening"
+	label variable provider_said_13 "HIV is treatable with ART"
+	label variable provider_said_14 "Care and support for PLHIV"
+	label variable provider_said_15 "Child health services"
+	label variable provider_said_16 "Vaccination"
+	label variable provider_said_17 "Labour and delivery"
+	label variable provider_said_18 "Domestic or other violence"
+	label variable provider_said_19 "Women’s rights"
+	label variable provider_said_20 "Men’s health"
+	label variable provider_said_21 "Health needs of young people"
+	label variable provider_said__1 "Anything else that interested you (specify)"
+	label variable provider_said_0 "None of the above"
+	label variable provider_said_97 "Refused to answer"
+	label variable provider_said_o "Other, specify"
+	
+	label variable suggest_serv "9. If you could make only one suggestion for improving services at this facility, what would you suggest?"
+	
+	label variable suggest_int "10. Do you have any suggestions about the integration of SRH and HIV services?"
+	
+	label variable satisfaction "11. How satisfied are you with the services you received today?"
+	label define satisfaction 1 "Very dissatisfied" 2 "Dissatisfied" 3 "Neutral (neither satisfied nor dissatisfied)" 4 "Satisfied" 5 "Very satisfied" -9 "Don't know" 97 "Refused to answer"
+	label values satisfaction satisfaction
+	
+	label variable satisf_why "11a. Why?"
+	
+	label variable satisf_help "11b. What might have helped you to be more satisfied with the services you received today?"
+	
+	label variable age_group "Age group"
+	label define age_group 1 "18 to 24" 2 "25 to 34" 3 "35 to 44" 4 "45 to 54" 5 "55 to 64" 6 "65+"
+	label values age_group age_group
+	
+	label variable age_18_24 "18 to 24"
+	label variable age_25_34 "25 to 34"
+	label variable age_35_44 "35 to 44"
+	label variable age_45_54 "45 to 54"
+	label variable age_55_64 "55 to 64"
+	label variable age_65plus "65+"
+	
+	label variable not_satisf "Client satisfaction"
+	label define not_satisf 1 "Dissatisfied or very dissatisfied" 0 "Satisfied or very satisfied"
+	label value not_satisf not_satisf
+	
+	label var fac_type "Facility type"
+	label var fac_name "Facility name"
+	
+	
+	label def why_not 1	"Cost" 2 "Service not available" 3 "I didn’t have time" 4 "Nurse/Doctor didn’t have time" 5	"I didn’t feel comfortable requesting that service" 6 "I didn’t know if the service was available to me" 7 "Stockout of drugs or commodities" -1	"Other reason" 97 "Refused to answer" -9 "Don’t know"
+	label value why_not_got why_not
+	
+	label def int_benef 1 "Reduce number of trips to facility" 2 "Improve efficiency of services" 3 "Reduce transportation costs" 4 "Reduce fees" 5 "Reduce waiting time" 6 "Good opportunity to access additional services" 7 "Reduce stigma for HIV" -9 "Don’t know" -1 "Other reason"
+
+	label def int_benef_oth 1 "Reduce number of trips to facility" 2 "Improve efficiency of services" 3 "Reduce transportation costs" 4 "Reduce fees" 5 "Reduce waiting time" 6 "Good opportunity to access additional services" 7 "Reduce stigma for HIV" -9 "Don’t know" 8 "Other reason"
+	
+	label def int_disadvant 1 "Fear of stigma and discrimination" 2 "Fear of less confidentiality" 3 "Embarrassment to talk about HIV with  provider of same village/ neighbourhood" 4 "Increase client waiting time" 5 "Facility staff will be too busy" 6 "Decreased quality of service" -9	"Don’t know" -1 "Other reason"
+
+	
+	label def pref_same_pers 1	"I prefer to get both SRH and HIV services from the same provider or person" 2	"I prefer to get SRH and HIV services from two different providers or persons" 0 "I don't have a preference about it" -9 "Don’t know" -1 "Other"
+
+	label def said_what_new7 1 "Family planning" 2 "Use of condoms (contraceptive)" 3 "Use of condoms (HIV/STIs)" 4	"Use of female condoms" 5 "STIs management" 6 "HIV prevention" 7 "Relationships" 8	"Sexuality" 9 "Counselling and testing for HIV" 10	"PMTCT" 11	"Breast cancer screening" 12 "Cervical cancer screening" 13	"HIV is treatable with ART" 14	"Care and support for PLHIV" 15	"Child health services" 16	"Vaccination" 17 "Labour and delivery" 18 "Domestic or other violence" 19 "Women’s rights" 20 "Men’s health" 21	"Health needs of young people"
+
+	
+	
+	
+	
+	
+	* SUMMARY TABLES *
+	
+	
+	
+	tab fac_name_maseru 
+	tab fac_name_berea 
+	tab fac_name_leribe 
+	tab fac_name_bbuthe 
+	tab fac_name_mokho 
+	tab fac_name_thabats 
+	tab fac_name_qacha 
+	tab fac_name_quthing 
+	tab fac_name_mhoek 
+	tab fac_name_mafet
+
+	
+	tabout district using district.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+		
+	
+	* Age group and gender *
+	
+	preserve
+
+		* age group 1 *
+
+		tabulate sex if age_group==1, generate(acat)
+		sum acat1
+		tab acat1
+		replace acat1=. if acat1==0
+		sum acat1
+		tab acat1
+		local count1l = `r(N)'
+		tempvar count1lt 
+		gen `count1lt' = `count1l'
+		gen maletotal=.
+		replace maletotal=`count1lt' if acat1==1
+
+		sum acat2
+		tab acat2
+		replace acat2=. if acat2==0
+		sum acat2
+		tab acat2
+		local count2l = `r(N)'
+		tempvar count2lt 
+		gen `count2lt' = `count2l'
+		gen femaletotal=.
+		replace femaletotal=`count2lt' if acat2==1
+
+		* age group 2 *
+
+		tabulate sex if age_group==2, generate(bcat)
+		sum bcat1
+		tab bcat1
+		replace bcat1=. if bcat1==0
+		sum bcat1
+		tab bcat1
+		local count3l = `r(N)'
+		tempvar count3lt 
+		gen `count3lt' = `count3l'
+		replace maletotal=`count3lt' if bcat1==1
+
+		sum bcat2
+		tab bcat2
+		replace bcat2=. if bcat2==0
+		sum bcat2
+		tab bcat2
+		local count4l = `r(N)'
+		tempvar count4lt 
+		gen `count4lt' = `count4l'
+		replace femaletotal=`count4lt' if bcat2==1
+
+		* age group 3 *
+
+		tabulate sex if age_group==3, generate(ccat)
+		sum ccat1
+		tab ccat1
+		replace ccat1=. if ccat1==0
+		sum ccat1
+		tab ccat1
+		local count5l = `r(N)'
+		tempvar count5lt 
+		gen `count5lt' = `count5l'
+		replace maletotal=`count5lt' if ccat1==1
+
+		sum ccat2
+		tab ccat2
+		replace ccat2=. if ccat2==0
+		sum ccat2
+		tab ccat2
+		local count6l = `r(N)'
+		tempvar count6lt 
+		gen `count6lt' = `count6l'
+		replace femaletotal=`count6lt' if ccat2==1
+
+		* age group 4 *
+
+		tabulate sex if age_group==4, generate(dcat)
+		sum dcat1
+		tab dcat1
+		replace dcat1=. if dcat1==0
+		sum dcat1
+		tab dcat1
+		local count7l = `r(N)'
+		tempvar count7lt 
+		gen `count7lt' = `count7l'
+		replace maletotal=`count7lt' if dcat1==1
+
+		sum dcat2
+		tab dcat2
+		replace dcat2=. if dcat2==0
+		sum dcat2
+		tab dcat2
+		local count8l = `r(N)'
+		tempvar count8lt 
+		gen `count8lt' = `count8l'
+		replace femaletotal=`count8lt' if dcat2==1
+
+		* age group 5 *
+
+		tabulate sex if age_group==5, generate(ecat)
+		sum ecat1
+		tab ecat1
+		replace ecat1=. if ecat1==0
+		sum ecat1
+		tab ecat1
+		local count9l = `r(N)'
+		tempvar count9lt 
+		gen `count9lt' = `count9l'
+		replace maletotal=`count9lt' if ecat1==1
+
+		sum ecat2
+		tab ecat2
+		replace ecat2=. if ecat2==0
+		sum ecat2
+		tab ecat2
+		local count10l = `r(N)'
+		tempvar count10lt 
+		gen `count10lt' = `count10l'
+		replace femaletotal=`count10lt' if ecat2==1
+
+		* age group 6 *
+
+		tabulate sex if age_group==6, generate(fcat)
+		sum fcat1
+		tab fcat1
+		replace fcat1=. if fcat1==0
+		sum fcat1
+		tab fcat1
+		local count11l = `r(N)'
+		tempvar count11lt 
+		gen `count11lt' = `count11l'
+		replace maletotal=`count11lt' if fcat1==1
+
+		sum fcat2
+		tab fcat2
+		replace fcat2=. if fcat2==0
+		sum fcat2
+		tab fcat2
+		local count12l = `r(N)'
+		tempvar count12lt 
+		gen `count12lt' = `count12l'
+		replace femaletotal=`count12lt' if fcat2==1
+
+		replace maletotal = -maletotal
+
+		twoway bar maletotal age_group, horizontal xvarlab(Males) || bar femaletotal age_group, horizontal xvarlab(Females) ///
+		, xtitle("Number of respondents", height(5)) ytitle("Age", height(5)) legend(label(1 Males) label(2 Females)) blabel(bar, position(inside) format(%4.1f) size(small) color(white) ) title("SAMPLE DISTRIBUTION BY AGE AND GENDER", color(black) size(medium) margin(medium)) ///
+		xlabel(-60 "60" -30 "30" 0 "0" 30(30)210, tlength(0) grid gmin gmax) ///
+		ylabel(1 "18 to 24" 2 "25 to 34" 3 "35 to 44" 4 "45 to 54" 5 "55 to 64" 6 "65+" , angle(horizontal))
+		graph save "age_group", asis replace
+		graph export age_group.png, replace 
+
+	restore
+
+	
+	tabout age_group sex using age_sex.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	tabout fac_type using fac_type.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	tabout fac_name_maseru using fac_name_maseru.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_berea using fac_name_berea.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_leribe using fac_name_leribe.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_bbuthe using fac_name_bbuthe.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_mokho using fac_name_mokho.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_thabats using fac_name_thabats.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_qacha using fac_name_qacha.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_quthing using fac_name_quthing.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_mhoek using fac_name_mhoek.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	tabout fac_name_mafet using fac_name_mafet.xls, cells(freq col) format(0 1) clab(No. Col_%)
+	
+	
+	* services sought *
+	
+	preserve
+	
+	gen service_sought=. 
+	label variable service_sought "Service sought by the client"
+	
+	gen what_service_17 = what_service__1 
+	
+	replace caseid = _n
+	
+	reshape long what_service_, i(caseid)
+	
+	forvalues x=1/17 {
+		
+	replace service_sought=`x' if what_service_==1 & _j==`x'
+	}
+	
+
+	label value _j services_oth
+
+	label value service_sought services_oth
+	
+	tab service_sought
+	tabout service_sought using service_sought.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	
+	restore
+		
+		
+	* Services sought jointly * a.1. sought_soughtjointly (Stackedbar)
+	
+	preserve
+	
+	gen service_sought=. 
+	label variable service_sought "Service sought by the client"
+	
+	gen what_service_17 = what_service__1 
+	
+	replace caseid = _n
+	
+	reshape long what_service_, i(caseid)
+	
+	forvalues x=1/17 {
+		
+	replace service_sought=`x' if what_service_==1 & _j==`x'
+	}
+	
+
+	label value _j services_oth
+	label value service_sought services_oth
+
+	gen sought_jointly=.
+	
+	forvalues x=1/781{
+		if caseid==`x'
+
+	
+	
+	
+	
+	
+	restore
+	
+		
+	
+	* Services sought jointly * a.1. sought_soughtjointly
+
+	
+	* 1 "Family Planning services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_1==1
+	}
+	
+	* 2 "STIs related services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_2==1
+	}
+	
+	* 3 "Maternal and Newborn Care" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_3==1
+	}
+	
+	* 4 "GBV related services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_4==1
+	}
+	
+	* 5 "Abortion related services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_5==1
+	}
+	
+	* 6 "HIV Counselling and Testing" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_6==1
+	}
+	
+	* 7 "Treatment preparedness" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_7==1
+	}
+	
+	* 8 "HIV monitoring and/or treatment" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_8==1
+	}
+		
+	* 9 "HIV prevention" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_9==1
+	}
+	
+	* 10 "Condom provision services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_10==1
+	}
+
+	* 11 "PMTCT services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_11==1
+	}
+	
+	* 12 "Economic assistance" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_12==1
+	}
+	
+	* 13 "Psycho-social support" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_13==1
+	}
+	
+	* 14 "Nutrition support" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_14==1
+	}
+	
+	* 15 "Gynaecological services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_15==1
+	}
+
+	* 16 "Immunization services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_16==1
+	}
+
+	* 17 "Other services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_17==1
+	}
+	
+	
+	
+
+	
+	
+	
+	* services received *
+	
+	preserve
+	
+	gen service_received=. 
+	label variable service_received "Service received by the client"
+	
+	gen what_received_17 = what_received__1 
+	
+	replace caseid = _n
+	
+	reshape long what_received_, i(caseid)
+	
+	forvalues x=1/17 {
+		
+	replace service_received=`x' if what_received_==1 & _j==`x'
+	}
+	
+
+	label value _j services_oth
+
+	label value service_received services_oth
+	
+	tab service_received
+	tabout service_received using service_received.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	
+	restore
+	
+	
+	* Services sought and received *
+	
+	preserve
+	
+	gen service_sought=. 
+	label variable service_sought "Service sought by the client"
+	
+	gen what_service_17 = what_service__1 
+	
+	gen service_received=. 
+	label variable service_received "Service received by the client"
+	
+	gen what_received_17 = what_received__1 
+
+	reshape long what_service_ what_received_, i(caseid)
+	
+	replace caseid = _n
+	
+	
+	gen service_sought_yes=.	
+	
+	forvalues x=1/17 {
+		
+	replace service_sought=`x' if what_service_==1 & _j==`x'
+	replace service_sought_yes=1 if service_sought==`x'
+	}
+	
+	
+	gen service_received_yes=.
+	
+	forvalues x=1/17 {
+		
+	replace service_received=`x' if what_received_==1 & _j==`x'
+	replace service_received_yes=1 if service_received==`x'
+	}
+	
+
+
+	tab service_received_yes
+	sum service_received_yes
+	
+	tab service_sought_yes
+	sum service_sought_yes
+	
+	
+	
+	label value _j services_oth
+
+	label value service_sought services_oth
+	
+	drop if _j==97
+	
+	graph hbar (count) service_sought_yes service_received_yes, over(_j, label(labsize(small))) blabel(total) graphregion(margin(l=30)) yvaroptions(relabel(1 "Sought by a client" 2 "Received by a client")) blabel(bar, position(outside) format(%4.0f) size(vsmall) color(black) ) legend(size(small) textwidth(115)) ylabel(,labsize(small)) ytitle(, size(small)) title("NUMBER OF TIMES EACH SERVICE WAS SOUGHT OR RECEIVED", color(black) size(msmall) margin(medium))
+	
+	
+	
+	restore
+	
+	* Those who said they were not referred but actually received extra services *
+	
+	preserve
+	
+
+	forvalue x=1/17 {
+	tab what_received_`x' if what_service_`x'==0 & what_received_`x'==1 & referred_extra_yn==0
+	}
+	
+	
+
+	
+	restore
+	
+	
+	
+	
+	* % who received the services sought, by service (with vertical reference line) *
+	
+	preserve
+	
+	
+	
+	forvalues x=1/16 {
+		
+	gen service_yes_`x'=. 
+	replace service_yes_`x'=1 if what_service_`x'==1 & what_received_`x'==1
+	replace service_yes_`x'=0 if what_service_`x'==1 & what_received_`x'==0
+	
+	gen service_no_`x'=. 
+	replace service_no_`x'=1 if what_service_`x'==1 & what_received_`x'==0
+	replace service_no_`x'=0 if what_service_`x'==1 & what_received_`x'==1
+	
+	}
+	
+	replace caseid = _n
+	
+	reshape long service_yes_ service_no_ , i(caseid)
+	
+	label value _j services
+	
+	gen service_yes_avg=.
+	gen service_no_avg=.
+	
+	forvalue x=1/16 {
+	sum service_yes_ if _j==`x'
+	tempvar mean`x' 
+	gen `mean`x'' = r(mean)
+	replace service_yes_avg=`mean`x'' if _j==`x'
+
+	}
+
+	forvalue x=1/16 {
+	sum service_no_ if _j==`x'
+	tempvar mean`x' 
+	gen `mean`x'' = r(mean)
+	replace service_no_avg=`mean`x'' if _j==`x'
+
+	}
+
+	
+	tab service_yes_avg
+	drop if service_yes_avg==.
+	
+	tab service_no_avg
+	drop if service_no_avg==.
+		
+	sum service_yes_avg, meanonly
+	local service_yes_avg = r(mean)*100
+	
+	graph hbar service_yes_ service_no_, yline(`service_yes_avg') graphregion(margin(l=30)) over(_j, sort(service_no_avg) label(labsize(small))) stack percent yvaroptions(relabel(1 "Received the service" 2 "Did not receive the service")) blabel(bar, position(inside) format(%4.1f) size(small) color(white) ) legend(size(small) textwidth(115)) ylabel(,labsize(small)) ytitle(, size(small)) title("RECEIVED THE SERVICE SOUGHT, BY SERVICE TYPE", color(black) size(msmall) margin(medium))
+	graph export received_service_sought.png, replace
+	restore	
+	
+
+		* % who received the services sought, by service (without vertical reference line) *
+	
+	preserve
+	
+	forvalues x=1/17 {
+		
+	gen service_yes_`x'=. 
+	replace service_yes_`x'=1 if what_service_`x'==1 & what_received_`x'==1
+	replace service_yes_`x'=0 if what_service_`x'==1 & what_received_`x'==0
+	
+	gen service_no_`x'=. 
+	replace service_no_`x'=1 if what_service_`x'==1 & what_received_`x'==0
+	replace service_no_`x'=0 if what_service_`x'==1 & what_received_`x'==1
+	
+	}
+	
+	replace caseid = _n
+	
+	reshape long service_yes_ service_no_ , i(caseid)
+	
+	label value _j services_oth
+	
+	gen service_yes_avg=.
+	gen service_no_avg=.
+	
+	forvalue x=1/17 {
+	sum service_yes_ if _j==`x'
+	tempvar mean`x' 
+	gen `mean`x'' = r(mean)
+	replace service_yes_avg=`mean`x'' if _j==`x'
+
+	}
+
+	forvalue x=1/17 {
+	sum service_no_ if _j==`x'
+	tempvar mean`x' 
+	gen `mean`x'' = r(mean)
+	replace service_no_avg=`mean`x'' if _j==`x'
+
+	}
+
+	
+	tab service_yes_avg
+	drop if service_yes_avg==.
+	
+	tab service_no_avg
+	drop if service_no_avg==.
+		
+	sum service_yes_avg, meanonly
+	local service_yes_avg = r(mean)*100
+	
+	tabout _j service_yes_ using received_service_sought.xls, cells(freq row) format(0 1) clab(No. Row_%) replace
+	
+	graph hbar service_yes_ service_no_, graphregion(margin(l=30)) over(_j, sort(service_no_avg) label(labsize(small))) stack percent yvaroptions(relabel(1 "Received the service" 2 "Did not receive the service")) blabel(bar, position(inside) format(%4.1f) size(small) color(white) ) legend(size(small) textwidth(115)) ylabel(,labsize(small)) ytitle(, size(small)) title("PROPORTION OF CLIENTS WHO RECEIVED THE SERVICE SOUGHT", color(black) size(msmall) margin(medium))
+	graph export received_service_sought.png, replace
+	restore	
+
+	
+			* % who received the services sought, by service (UNDERSTANDING DISCREPANCIES WITH got_all_service ANSWERS) *
+	
+	preserve
+	
+	*keep if	got_all_service==1 | got_all_service==0
+	
+	forvalues x=1/17 {
+		
+	gen service_yes_`x'=. 
+	replace service_yes_`x'=1 if what_service_`x'==1 & what_received_`x'==1
+	replace service_yes_`x'=0 if what_service_`x'==1 & what_received_`x'==0
+	
+	gen service_no_`x'=. 
+	replace service_no_`x'=1 if what_service_`x'==1 & what_received_`x'==0
+	replace service_no_`x'=0 if what_service_`x'==1 & what_received_`x'==1
+	
+	}
+	
+		
+	forvalues x=1/17{
+	tab service_yes_`x' what_service_`x'
+	tab service_yes_`x' what_received_`x'
+	}
+	
+	forvalues x=1/17{
+	tab service_no_`x' what_service_`x'
+	tab service_no_`x' what_received_`x'
+	}
+	
+	**understanding discrepancies**
+	forvalues x=1/17{
+	tab service_no_`x'
+	}
+	
+	forvalues x=1/17{
+	tab got_all_service service_no_`x'
+	}
+	
+	forvalues x=1/17{
+	count if service_no_`x'==1
+	}
+	
+	gen service_no_ever=.
+	forvalue x=1/17{
+	replace service_no_ever=1 if service_no_`x'==1
+	}
+	
+	forvalue x=1/17 {
+	tab service_no_ever service_no_`x' if service_no_`x'==1
+	}
+	
+	tab got_all_service
+	tab service_no_ever got_all_service
+	
+	*******************************
+	restore
+
+	replace caseid = _n
+	
+	reshape long service_yes_ service_no_ , i(caseid)
+	
+	label value _j services_oth
+	
+	gen service_yes_avg=.
+	gen service_no_avg=.
+	
+	forvalue x=1/17 {
+	sum service_yes_ if _j==`x'
+	tempvar mean`x' 
+	gen `mean`x'' = r(mean)
+	replace service_yes_avg=`mean`x'' if _j==`x'
+
+	}
+
+	forvalue x=1/17 {
+	sum service_no_ if _j==`x'
+	tempvar mean`x' 
+	gen `mean`x'' = r(mean)
+	replace service_no_avg=`mean`x'' if _j==`x'
+
+	}
+
+	
+	tab service_yes_avg
+	drop if service_yes_avg==.
+	
+	tab service_no_avg
+	drop if service_no_avg==.
+		
+	sum service_yes_avg, meanonly
+	local service_yes_avg = r(mean)*100
+	
+	tabout _j service_yes_ using received_service_sought_onlygotall.xls, cells(freq row) format(0 1) clab(No. Row_%) replace
+	
+	*graph hbar service_yes_ service_no_, graphregion(margin(l=30)) over(_j, sort(service_no_avg) label(labsize(small))) stack percent yvaroptions(relabel(1 "Received the service" 2 "Did not receive the service")) blabel(bar, position(inside) format(%4.1f) size(small) color(white) ) legend(size(small) textwidth(115)) ylabel(,labsize(small)) ytitle(, size(small)) title("PROPORTION OF CLIENTS WHO RECEIVED THE SERVICE SOUGHT", color(black) size(msmall) margin(medium))
+	*graph export received_service_sought.png, replace
+	restore	
+	
+	
+	
+	
+	* Referred_yn, by client *
+	
+	tabout referred_extra_yn using referred_extra_yn.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	
+	
+	* Referred_yn, by service initially sought *
+	
+	preserve
+	
+	replace caseid = _n
+	
+	gen referred_yes=. 
+	label var referred_yes "Client was referred for other services"
+	label def referred_yes 0 "No" 1 "Yes"
+	label val referred_yes referred_yes
+	
+	reshape long what_service_ , i(caseid)
+	
+	label value _j services_oth
+		
+		
+	replace referred_yes=1 if what_service_==1 & referred_extra_yn==1
+	replace referred_yes=0 if what_service_==1 & referred_extra_yn==0
+	
+	
+	
+	tabout _j referred_yes using referred_yes.xls, cells(freq row) format(0 1) clab(No. Row_%) replace
+
+	restore
+
+	
+	* Referred_yn, by service received *
+	
+	preserve
+	
+	replace caseid = _n
+	
+	gen referred_yes=. 
+	label var referred_yes "Client was referred for other services"
+	label def referred_yes 0 "No" 1 "Yes"
+	label val referred_yes referred_yes
+	
+	reshape long what_received_ , i(caseid)
+	
+	label value _j services_oth
+		
+		
+	replace referred_yes=1 if what_received_==1 & referred_extra_yn==1
+	replace referred_yes=0 if what_received_==1 & referred_extra_yn==0
+		
+	
+	tabout _j referred_yes using referred_yes_receiv.xls, cells(freq row) format(0 1) clab(No. Row_%) replace
+
+	
+	restore
+
+	
+	
+	
+	* matrix: services sought and sought jointly (patients referred only) * a.2. sought_soughtjointly_refonly
+	
+	* 1 "Family Planning services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_1==1 & referred_extra_yn==1
+	}
+	
+	* 2 "STIs related services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_2==1 & referred_extra_yn==1
+	}
+	
+	* 3 "Maternal and Newborn Care" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_3==1 & referred_extra_yn==1
+	}
+	
+	* 4 "GBV related services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_4==1 & referred_extra_yn==1
+	}
+	
+	* 5 "Abortion related services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_5==1 & referred_extra_yn==1
+	}
+	
+	* 6 "HIV Counselling and Testing" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_6==1 & referred_extra_yn==1
+	}
+	
+	* 7 "Treatment preparedness" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_7==1 & referred_extra_yn==1
+	}
+	
+	* 8 "HIV monitoring and/or treatment" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_8==1 & referred_extra_yn==1
+	}
+		
+	* 9 "HIV prevention" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_9==1 & referred_extra_yn==1
+	}
+	
+	* 10 "Condom provision services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_10==1 & referred_extra_yn==1
+	}
+
+	* 11 "PMTCT services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_11==1 & referred_extra_yn==1
+	}
+	
+	* 12 "Economic assistance" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_12==1 & referred_extra_yn==1
+	}
+	
+	* 13 "Psycho-social support" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_13==1 & referred_extra_yn==1
+	}
+	
+	* 14 "Nutrition support" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_14==1 & referred_extra_yn==1
+	}
+	
+	* 15 "Gynaecological services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_15==1 & referred_extra_yn==1
+	}
+
+	* 16 "Immunization services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_16==1 & referred_extra_yn==1
+	}
+
+	* 17 "Other services" *
+	forvalue x=1/17 {
+	tab what_service_`x' if what_service_`x'==1 & what_service_17==1 & referred_extra_yn==1
+	}
+	
+	
+	
+	
+	
+	
+	* matrix: services sought and received (patients referred only) * a.3. sought_received_refonly
+		
+	* 1 "Family Planning services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_1==1 & referred_extra_yn==1
+	}
+		
+	* 2 "STIs related services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_2==1 & referred_extra_yn==1
+	}
+	
+	* 3 "Maternal and Newborn Care" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_3==1 & referred_extra_yn==1
+	}
+	
+	* 4 "GBV related services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_4==1 & referred_extra_yn==1
+	}
+	
+	* 5 "Abortion related services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_5==1 & referred_extra_yn==1
+	}
+	
+	* 6 "HIV Counselling and Testing" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_6==1 & referred_extra_yn==1
+	}
+	
+	* 7 "Treatment preparedness" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_7==1 & referred_extra_yn==1
+	}
+	
+	* 8 "HIV monitoring and/or treatment" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_8==1 & referred_extra_yn==1
+	}
+		
+	* 9 "HIV prevention" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_9==1 & referred_extra_yn==1
+	}
+	
+	* 10 "Condom provision services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_10==1 & referred_extra_yn==1
+	}
+
+	* 11 "PMTCT services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_11==1 & referred_extra_yn==1
+	}
+	
+	* 12 "Economic assistance" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_12==1 & referred_extra_yn==1
+	}
+	
+	* 13 "Psycho-social support" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_13==1 & referred_extra_yn==1
+	}
+	
+	* 14 "Nutrition support" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_14==1 & referred_extra_yn==1
+	}
+	
+	* 15 "Gynaecological services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_15==1 & referred_extra_yn==1
+	}
+
+	* 16 "Immunization services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_16==1 & referred_extra_yn==1
+	}
+
+	* 17 "Other services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_17==1 & referred_extra_yn==1
+	}
+
+	
+	
+	* matrix: services sought and received  * a.5. sought_received
+	
+	* 1 "Family Planning services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_1==1
+	}
+		
+	* 2 "STIs related services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_2==1
+	}
+	
+	* 3 "Maternal and Newborn Care" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_3==1
+	}
+	
+	* 4 "GBV related services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_4==1
+	}
+	
+	* 5 "Abortion related services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_5==1
+	}
+	
+	* 6 "HIV Counselling and Testing" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_6==1
+	}
+	
+	* 7 "Treatment preparedness" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_7==1
+	}
+	
+	* 8 "HIV monitoring and/or treatment" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_8==1
+	}
+		
+	* 9 "HIV prevention" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_9==1
+	}
+	
+	* 10 "Condom provision services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_10==1
+	}
+
+	* 11 "PMTCT services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_11==1
+	}
+	
+	* 12 "Economic assistance" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_12==1
+	}
+	
+	* 13 "Psycho-social support" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_13==1
+	}
+	
+	* 14 "Nutrition support" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_14==1
+	}
+	
+	* 15 "Gynaecological services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_15==1
+	}
+
+	* 16 "Immunization services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_16==1
+	}
+
+	* 17 "Other services" *
+	forvalue x=1/17 {
+	tab what_received_`x' if what_received_`x'==1 & what_service_17==1
+	}
+
+	
+	
+	* Got all services or not *
+	
+	tabout got_all_service using got_all_service.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	* What other services needs *
+	
+	preserve
+	
+	gen want_other_service_17 = want_other_service__1
+	
+	
+	
+	gen service_need=. 
+	label variable service_need "Services wanted but not received by the client"
+	
+	 
+	
+	replace caseid = _n
+	
+	reshape long want_other_service_, i(caseid)
+	
+	forvalues x=1/17 {
+		
+	replace service_need=`x' if want_other_service_==1 & _j==`x'
+	}
+	
+
+	label value _j services_oth
+
+	label value service_need services_oth
+	
+	tab service_need
+	tabout service_need using service_need.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	
+	restore
+	
+	
+	
+	* Why did not get all services *
+	
+	tabout why_not_got using why_not_got.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+
+	tabout what_service if why_not_got==2 using service_not_avail.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	tabout what_service if why_not_got==7 using stockout.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+		
+	* Prefer same facility or not *
+	
+	tabout pref_same_fac using pref_same_fac.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	tabout pref_same_fac_spec if pref_same_fac==1 using pref_same_fac1.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	tabout pref_same_fac_spec if pref_same_fac==2 using pref_same_fac2.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	tabout pref_same_fac_spec if pref_same_fac==3 using pref_same_fac3.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	
+	* Benefits of receiving SRH and HIV services at the same facility *
+	
+	preserve
+	replace caseid = _n
+	
+	gen fac_benefits_8=fac_benefits__1
+	
+	reshape long fac_benefits_ , i(caseid)
+	
+	label value _j int_benef_oth
+	
+
+	label var fac_benefits_ "Perceived as a benefit of receiving integrated services"
+	label def fac_benefits_ 0 "No" 1 "Yes"
+	label val fac_benefits_ fac_benefits_ 
+	
+	
+	
+	tabout _j fac_benefits_ if fac_benefits_==1 using fac_benefits.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+
+	restore
+	
+	tabout fac_benefits_stigma if fac_benefits_7==1 using fac_benefits_stigma.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+
+	
+	
+	* Disadvantages of receiving SRH and HIV services at the same facility *
+	
+	preserve
+	replace caseid = _n
+	
+		
+	reshape long fac_disadvant_ , i(caseid)
+	
+	label value _j int_disadvant
+	
+
+	label var fac_disadvant_ "Perceived as a disadvantage of receiving integrated services"
+	label def fac_disadvant_ 0 "No" 1 "Yes"
+	label val fac_disadvant_ fac_disadvant_ 
+	
+	
+	
+	tabout _j fac_disadvant_ if fac_disadvant_==1 using fac_disadvant.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+
+	restore
+	
+
+	* Prefer same provider/person or not *
+	
+	preserve
+	
+	drop if pref_same_pers==-1
+	
+	lab val pref_same_pers pref_same_pers
+	
+	tabout pref_same_pers using pref_same_pers.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	tabout pref_same_pers_spec if pref_same_pers==1 using pref_same_pers1.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	tabout pref_same_pers_spec if pref_same_pers==2 using pref_same_pers2.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+
+	restore
+	
+	
+	
+	* Benefits of receiving SRH and HIV services from the same provider or person *
+	
+	preserve
+	replace caseid = _n
+	
+	
+	reshape long pers_benefits_ , i(caseid)
+	
+	label value _j int_benef
+	
+
+	label var pers_benefits_ "Perceived as a benefit of receiving integrated services"
+	label def pers_benefits_ 0 "No" 1 "Yes"
+	label val pers_benefits_ pers_benefits_ 
+	
+	
+	
+	tabout _j pers_benefits_ if pers_benefits_==1 using pers_benefits.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+
+	restore
+	
+	tabout pers_benefits_stigma if pers_benefits_7==1 using pers_benefits_stigma.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	
+	
+	* Disadvantages of receiving SRH and HIV services from the same facility *
+	
+	preserve
+	replace caseid = _n
+	
+		
+	reshape long pers_disadvant_ , i(caseid)
+	
+	label value _j int_disadvant
+	
+
+	label var pers_disadvant_ "Perceived as a disadvantage of receiving integrated services"
+	label def pers_disadvant_ 0 "No" 1 "Yes"
+	label val pers_disadvant_ pers_disadvant_ 
+	
+	
+	
+	tabout _j pers_disadvant_ if pers_disadvant_==1 using pers_disadvant.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+
+	restore
+
+	
+	* Services the provider talked about today *
+	
+	preserve
+	
+	gen service_said_what=. 
+	label variable service_said_what "Service mentioned by the provider"
+	
+	drop provider_said_0 provider_said_97 provider_said_o 
+		
+	reshape long provider_said_ , i(caseid)
+	
+	replace caseid = _n
+	
+	
+	gen service_said_yes=.	
+	
+	forvalues x=1/21 {
+		
+	replace service_said_what=`x' if provider_said_==1 & _j==`x'
+	replace service_said_yes=1 if service_said_what==`x'
+	}
+	
+	
+	
+	
+	
+	
+	tab service_said_yes
+	sum service_said_yes
+	
+	
+	
+	label value _j said_what_new7
+
+	label value service_said_yes said_what_new
+	
+	drop if _j==97
+	
+	graph hbar (count) service_said_yes, over(_j, label(labsize(small))) blabel(total) graphregion(margin(l=20)) yvaroptions(relabel(1 "Number of clients")) blabel(bar, position(outside) format(%4.0f) size(vsmall) color(black) ) legend(size(small) textwidth(115)) ylabel(,labsize(small)) ytitle(, size(small)) title("NUMBER OF CLIENTS RECEIVING INFORMATION ON EACH TOPIC", color(black) size(msmall) margin(medium))
+	
+	
+	
+	restore
+	
+	
+	
+	
+	
+	* One suggestion to improve services *
+	
+	tabout suggest_serv using suggest_serv.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+	
+	
+	* Suggestion about integration *
+
+	tabout satisf_help using satisf_help.xls, cells(freq col) format(0 1) clab(No. Col_%) replace
+
+	
+	
+	* Being not satisfied is significantly correlated to not getting all services the client came for *
+	
+	tabout satisfaction using satisfaction.xls, cells(freq col) clab(No. Col_%) replace
+	
+	tabout satisf_why if satisfaction==1 | satisfaction==2 using satisfaction_whynot.xls, cells(freq col) clab(No. Col_%) replace
+	
+	tabout satisf_why if satisfaction==4 | satisfaction==5 using satisfaction_whyyes.xls, cells(freq col) clab(No. Col_%) replace
+	
+	tabout not_satisf got_all_service if got_all_service==1 | got_all_service==0 using satisf_gotservice.xls, stats(chi2) cells(freq col) clab(No. Col_%) replace
+	
+	
+	* Provider-initiated services*
+	
+	*1 "Family Planning services" 
+	forvalues x=1/17 {
+	tab what_service_1 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*2 "STIs related services" 
+	forvalues x=1/17 {
+	tab what_service_2 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*3 "Maternal and Newborn Care" 
+	forvalues x=1/17 {
+	tab what_service_3 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*4 "GBV related services" 
+	forvalues x=1/17 {
+	tab what_service_4 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*5 "Abortion related services" 
+	forvalues x=1/17 {
+	tab what_service_5 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*6 "HIV Counselling and Testing" 
+	forvalues x=1/17 {
+	tab what_service_6 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*7 "Treatment preparedness" 
+	forvalues x=1/17 {
+	tab what_service_7 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*8 "HIV monitoring and/or treatment" 
+	forvalues x=1/17 {
+	tab what_service_8 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*9 "HIV prevention" 
+	forvalues x=1/17 {
+	tab what_service_9 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*10 "Condom provision services" 
+	forvalues x=1/17 {
+	tab what_service_10 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*11 "PMTCT services" 
+	forvalues x=1/17 {
+	tab what_service_11 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*12 "Economic assistance" 
+	forvalues x=1/17 {
+	tab what_service_12 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*13 "Psycho-social support" 
+	forvalues x=1/17 {
+	tab what_service_13 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*14 "Nutrition support" 
+	forvalues x=1/17 {
+	tab what_service_14 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*15 "Gynaecological services" 
+	forvalues x=1/17 {
+	tab what_service_15 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*16 "Immunization services" 
+	forvalues x=1/17 {
+	tab what_service_16 what_received_`x' if what_service_`x'!=1
+	}
+	
+	*17 "Other services"
+	forvalues x=1/17 {
+	tab what_service_17 what_received_`x' if what_service_`x'!=1
+	}
+	
+	
+	
+	* Received it but was not seeking it *
+		
+	forvalues x=1/17 {
+	tab what_received_`x' if what_service_`x'!=1 & what_received_`x'==1
+	}
+
+	
+	
