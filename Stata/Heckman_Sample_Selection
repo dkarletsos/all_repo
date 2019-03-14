@@ -1,0 +1,3359 @@
+* HECKMAN SAMPLE SELECTION MODEL *
+
+
+* keep variables from the household income *
+* keep P119t P120t P550tp A049 A040 A041 A042 A0423 A024 A025 A026 A027 A033 A034 A035 A036 A037 A062 B038p B1601 B200 P527 C12111 C31412 B229MedicinesExp C95111 CC1317 p344p A093
+
+
+
+tab A049, gen(d_HouseholdSize)
+
+tab A040
+gen A040_dummy=1
+replace A040_dummy=0 if A040==0
+drop A040
+
+tab A041
+gen A041_dummy=1
+replace A041_dummy=0 if A041==0
+drop A041
+
+tab A042
+gen A042_dummy=1
+replace A042_dummy=0 if A042==0
+drop A042
+
+tab A023
+gen A023_dummy=1
+replace A023_dummy=0 if A023==0
+drop A023
+
+tab A024
+gen A024_dummy=1
+replace A024_dummy=0 if A024==0
+drop A024
+
+tab A025
+gen A025_dummy=1
+replace A025_dummy=0 if A025==0
+drop A025
+
+tab A026
+gen A026_dummy=1
+replace A026_dummy=0 if A026==0
+drop A026
+
+tab A027
+gen A027_dummy=1
+replace A027_dummy=0 if A027==0
+drop A027
+
+tab A033
+gen A033_dummy=1
+replace A033_dummy=0 if A033==0
+drop A033
+
+tab A034
+gen A034_dummy=1
+replace A034_dummy=0 if A034==0
+drop A034
+
+tab A035
+gen A035_dummy=1
+replace A035_dummy=0 if A035==0
+drop A035
+
+tab A036
+gen A036_dummy=1
+replace A036_dummy=0 if A036==0
+drop A036
+
+tab A037
+gen A037_dummy=1
+replace A037_dummy=0 if A037==0
+drop A037
+
+tab A062
+tab(A062), gen(d_composition)
+
+label variable A040_dummy "Children Under 2"
+label variable A041_dummy "Children 2 to 5"
+label variable A042_dummy "Children 5 to 18"
+label variable A023_dummy "Male Adults under 45"
+label variable A024_dummy "Male Adults 45 to 60"
+label variable A025_dummy "Male Adults 60 to 65"
+label variable A026_dummy "Male Adults 65 to 70"
+label variable A027_dummy "Male Adults 70 and over"
+label variable A033_dummy "Female Adults under 45"
+label variable A034_dummy "Female Adults 45 to 60"
+label variable A035_dummy "Female Adults 60 to 65"
+label variable A036_dummy "Female Adults 65 to 70"
+label variable A037_dummy "Female Adults 70 and over"
+
+tab A016
+gen A016_dummy=1
+replace A016_dummy=0 if A016==0
+drop A016
+label variable A016_dummy "Number of Single males 16-18"
+
+tab A017
+gen A017_dummy=1
+replace A017_dummy=0 if A017==0
+drop A017
+label variable A017_dummy "Number of Single females 16-18"
+
+tab A018
+gen A018_dummy=1
+replace A018_dummy=0 if A018==0
+drop A018
+label variable A018_dummy "Number of Single persons 16-18"
+
+sum B038p, detail
+gen CouncilTax25=0
+replace CouncilTax25=1 if B038p<=13.72661
+gen CouncilTax25to50=0
+replace CouncilTax25to50=1 if B038p>13.72661 & B038p<=20.9908
+
+gen CouncilTax50to75=0
+replace CouncilTax50to75=1 if B038p>20.9908 & B038p<=26.87594
+gen CouncilTax75to90=0
+replace CouncilTax75to90=1 if B038p>26.87594 & B038p<=35.07234
+gen CouncilTax90to95=0
+replace CouncilTax90to95=1 if B038p>35.07234 & B038p<=40.41139
+gen CouncilTax95to99=0
+replace CouncilTax95to99=1 if B038p>40.41139 & B038p<=48.46624
+gen CouncilTaxAbove99=0
+replace CouncilTaxAbove99=1 if B038p>48.46624
+
+label variable CouncilTax25 "Council Tax Payer below 25th Percentile"
+label variable CouncilTax25to50 "Council Tax Payer between 25th and 50th Percentile"
+label variable CouncilTax50to75 "Council Tax Payer between 50th and 75th Percentile"
+label variable CouncilTax75to90 "Council Tax Payer between 75th and 90th Percentile"
+label variable CouncilTax90to95 "Council Tax Payer between 90th and 95th Percentile"
+label variable CouncilTax95to99 "Council Tax Payer between 95th and 99th Percentile"
+label variable CouncilTaxAbove99 "Council Tax Payer above 99th Percentile"
+
+
+gen P527above95=0 
+replace P527above95=1 if P527>61.155
+label variable P527above95 "Leisure Goods Consumer above 95th Percentile"
+gen P527above99=0 
+replace P527above99=1 if P527>185.5
+label variable P527above99 "Leisure Goods Consumer above 99th Percentile"
+
+gen MedicinesAbove95=0 
+replace MedicinesAbove95=1 if MedicinesExp>6.545
+label variable MedicinesAbove95 "Medicines Consumer above 95th Percentile"
+
+gen MedicinesAbove99=0 
+replace MedicinesAbove99=1 if MedicinesExp>15.03
+label variable MedicinesAbove99 "Medicines Consumer above 99th Percentile"
+
+sum income, detail
+
+gen income95=0
+replace income95=1 if income>1810.12
+label variable income95 "Household Income above 95th Percentile"
+gen income99=0
+replace income99=1 if income>1956.725
+label variable income99 "Household Income above 99th Percentile"
+
+gen income2=income*income
+label variable income2 "Household Income Squared"
+
+sum P120t if A093==1, detail
+sum P120t if A093==2, detail
+sum P120t if A093==3, detail
+sum P120t if A093==4, detail
+sum P120t if A093==5, detail
+sum P120t if A093==6, detail
+sum P120t if A093==7, detail
+
+tab A093, gen(d_EconomicPosition)
+label variable d_EconomicPosition1 "Self-Employed"
+label variable d_EconomicPosition2 "Full Time Employee"
+label variable d_EconomicPosition3 "Part Time Employee"
+label variable d_EconomicPosition4 "Unemployed"
+label variable d_EconomicPosition5 "Under Gov. Training Program"
+label variable d_EconomicPosition6 "Retired Above Min. Wage"
+label variable d_EconomicPosition7 "Unoccupied Below Min. Wage"
+
+tab(DVAge9), gen(d_Age)
+generate male=1
+replace male=0 if Sex==2
+drop Sex
+
+gen Ethnic_White=0
+replace Ethnic_White=1 if EthEp==1 | EthWp==1 | EthNIp==1 | EthSp==1
+label variable Ethnic_White "Ethnic Origin: White"
+
+gen Ethnic_Mixed=0
+replace Ethnic_Mixed=1 if EthEp==2 | EthWp==2 | EthNIp==2 | EthSp==2
+label variable Ethnic_Mixed "Ethnic Origin: Mixed Race"
+
+gen Ethnic_Asian=0
+replace Ethnic_Asian=1 if EthEp==3 | EthWp==3 | EthNIp==3 | EthSp==3
+label variable Ethnic_Asian "Ethnic Origin: Asian"
+
+gen Ethnic_Black=0
+replace Ethnic_Black=1 if EthEp==4 | EthWp==4 | EthNIp==4 | EthSp==4
+label variable Ethnic_Black "Ethnic Origin: Black"
+
+gen Ethnic_Other=0
+replace Ethnic_Black=1 if EthEp==5 | EthWp==5 | EthNIp==5 | EthSp==5
+label variable Ethnic_Other "Ethnic Origin: Other"
+
+tab(HighEd1), gen(d_Educ)
+tab(MarSta_p), gen(d_MarSta)
+
+gen SpouseHouse=0
+replace SpouseHouse=1 if Marchk==1
+label variable SpouseHouse "Spouse living in the household"
+
+gen age2=Age*Age
+label variable age2 "Age Squared"
+
+generate withdrawal=.
+replace withdrawal=1 if OwnSum==1
+replace withdrawal=0 if OwnSum==2
+label variable withdrawal "Withdraw money from work account"
+
+gen d_tobacco=0
+replace d_tobacco=1 if P120t>0
+
+gen d_alcohol=0
+replace d_alcohol=1 if P119t>0
+
+gen ChildrenBelow5=0
+replace ChildrenBelow5=1 if A040_dummy==1 | A041_dummy==1
+
+gen d_Unemp=0
+replace d_Unemp=1 if d_EconomicPosition4==1 | d_EconomicPosition7==1
+
+gen intUnempPriceTobacco=d_Unemp*Price2012
+gen intUnempPriceAlcohol=d_Unemp*Price2012
+
+* Example of specification for Box-Cox test*
+boxcox TobaccoExp AlcoholExp income Age age2 d_Educ1 Ethnic_Asian d_MarSta2 d_EconomicPosition2 if P120t>0, nolog
+
+* Setting the censoring point for data in logs *
+* I do this in order for the logarithmic function to be always defined. (I trick stata..)
+gen lnTobacco=ln(TobaccoExp)
+quietly summarize lnTobacco
+scalar gamma=r(min)
+display "gamma = " gamma
+replace lnTobacco=gamma-0.0000001 if lnTobacco==.
+sum lnTobacco, detail
+
+gen lnAlcohol=ln(AlcoholExp)
+quietly summarize lnAlcohol
+scalar gamma=r(min)
+display "gamma = " gamma
+replace lnAlcohol=gamma-0.0000001 if lnAlcohol==.
+sum lnAlcohol, detail
+
+* DEFINING THE ROUTINE FOR THE DOUBLE HURDLE MODEL *
+
+program define dhurdle_no0
+	version 7.0
+	args lnf theta1 theta2 theta3
+	tempvar xbeta a b
+  qui {
+
+	gen double `xbeta'=($ML_y1-`theta1')/`theta3'
+	gen double `a' = -ln(`theta3')+ln(normden(`xbeta'))
+	gen double `b' = ln(1-norm((-`theta2')))
+
+	replace `lnf'= `a' + `b' if $ML_y2==1 
+	replace `lnf'=ln(1-(norm(-`xbeta')*(norm(`theta2')))) if $ML_y2==0
+	
+
+}
+end
+
+
+program define dhurdle_no
+
+	version 7.0
+	args lnf theta1 theta2 theta3 theta4
+	tempvar xbeta a rho b
+  qui {
+
+	gen double `xbeta'=($ML_y1-`theta1')/`theta3'
+	gen double `a' = -ln(`theta3')+ln(normden(`xbeta'))
+	gen double `b' = ln(1-norm((-`theta2'-`theta4'*`xbeta')/sqrt(1-(`theta4'^2))))
+
+	replace `lnf'= `a' + `b' if $ML_y2==1 
+	replace `lnf'=ln(1-binorm(-`xbeta',`theta2',`theta4')) /*
+            */ if $ML_y2==0
+	
+
+}
+end
+
+*ORIGINAL SPECIFICATION WITH EXCLUSION RESTRICTION*
+*SELECTION EQUATION (d_tobacco = d_Educ1 Ethnic_Asian d_MarSta2 d_EconomicPosition2)
+*CONSUMPTION EQUATION (TobaccoExp = income Age age2)
+
+
+* SET MODEL SPECIFICATIONS INTO MACROS *
+
+global Model1 "male income maleincome income95 d_Educ1"
+global Model2 "male income maleincome income95 d_Educ1 Single Divorced Widowed"
+global Model3 "male income maleincome income95 d_Educ1 Age16to24 d_Age2 d_Age3 d_Age4 d_Age5 d_Age6 d_Age7"
+global Model4 "male income maleincome income95 d_Educ1 d_EconomicPosition1 d_EconomicPosition3 d_EconomicPosition4 d_EconomicPosition5 d_EconomicPosition6 d_EconomicPosition7 Price2012 intUnempPriceAlcohol"
+global Model5 "male income maleincome income95 d_Educ1 Ethnic_Mixed Ethnic_Asian Ethnic_Black"
+global Model6 "male income maleincome income95 d_Educ1 ChildrenBelow5 A042_dummy Lone_Mother Lone_Father"
+global Model7 "male income maleincome income95 d_Educ1 Single Divorced Widowed Age16to24 d_Age2 d_Age3 d_Age4 d_Age5 d_Age6 d_Age7 d_EconomicPosition1 d_EconomicPosition3 d_EconomicPosition4 d_EconomicPosition5 d_EconomicPosition6 d_EconomicPosition7 Price2012 intUnempPriceAlcohol Ethnic_Mixed Ethnic_Asian Ethnic_Black ChildrenBelow5 A042_dummy Lone_Mother Lone_Father"
+
+* DO GRAPHS *
+
+gen AvTobaccoExp=.
+egen TobaccoExp17=mean(TobaccoExp) if Age==17
+egen TobaccoExp18=mean(TobaccoExp) if Age==18
+egen TobaccoExp19=mean(TobaccoExp) if Age==19
+egen TobaccoExp20=mean(TobaccoExp) if Age==20
+egen TobaccoExp21=mean(TobaccoExp) if Age==21
+egen TobaccoExp22=mean(TobaccoExp) if Age==22
+egen TobaccoExp23=mean(TobaccoExp) if Age==23
+egen TobaccoExp24=mean(TobaccoExp) if Age==24
+egen TobaccoExp25=mean(TobaccoExp) if Age==25
+egen TobaccoExp26=mean(TobaccoExp) if Age==26
+egen TobaccoExp27=mean(TobaccoExp) if Age==27
+egen TobaccoExp28=mean(TobaccoExp) if Age==28
+egen TobaccoExp29=mean(TobaccoExp) if Age==29
+egen TobaccoExp30=mean(TobaccoExp) if Age==30
+egen TobaccoExp31=mean(TobaccoExp) if Age==31
+egen TobaccoExp32=mean(TobaccoExp) if Age==32
+egen TobaccoExp33=mean(TobaccoExp) if Age==33
+egen TobaccoExp34=mean(TobaccoExp) if Age==34
+egen TobaccoExp35=mean(TobaccoExp) if Age==35
+egen TobaccoExp36=mean(TobaccoExp) if Age==36
+egen TobaccoExp37=mean(TobaccoExp) if Age==37
+egen TobaccoExp38=mean(TobaccoExp) if Age==38
+egen TobaccoExp39=mean(TobaccoExp) if Age==39
+egen TobaccoExp40=mean(TobaccoExp) if Age==40
+egen TobaccoExp41=mean(TobaccoExp) if Age==41
+egen TobaccoExp42=mean(TobaccoExp) if Age==42
+egen TobaccoExp43=mean(TobaccoExp) if Age==43
+egen TobaccoExp44=mean(TobaccoExp) if Age==44
+egen TobaccoExp45=mean(TobaccoExp) if Age==45
+egen TobaccoExp46=mean(TobaccoExp) if Age==46
+egen TobaccoExp47=mean(TobaccoExp) if Age==47
+egen TobaccoExp48=mean(TobaccoExp) if Age==48
+egen TobaccoExp49=mean(TobaccoExp) if Age==49
+egen TobaccoExp50=mean(TobaccoExp) if Age==50
+egen TobaccoExp51=mean(TobaccoExp) if Age==51
+egen TobaccoExp52=mean(TobaccoExp) if Age==52
+egen TobaccoExp53=mean(TobaccoExp) if Age==53
+egen TobaccoExp54=mean(TobaccoExp) if Age==54
+egen TobaccoExp55=mean(TobaccoExp) if Age==55
+egen TobaccoExp56=mean(TobaccoExp) if Age==56
+egen TobaccoExp57=mean(TobaccoExp) if Age==57
+egen TobaccoExp58=mean(TobaccoExp) if Age==58
+egen TobaccoExp59=mean(TobaccoExp) if Age==59
+egen TobaccoExp60=mean(TobaccoExp) if Age==60
+egen TobaccoExp61=mean(TobaccoExp) if Age==61
+egen TobaccoExp62=mean(TobaccoExp) if Age==62
+egen TobaccoExp63=mean(TobaccoExp) if Age==63
+egen TobaccoExp64=mean(TobaccoExp) if Age==64
+egen TobaccoExp65=mean(TobaccoExp) if Age==65
+egen TobaccoExp66=mean(TobaccoExp) if Age==66
+egen TobaccoExp67=mean(TobaccoExp) if Age==67
+egen TobaccoExp68=mean(TobaccoExp) if Age==68
+egen TobaccoExp69=mean(TobaccoExp) if Age==69
+egen TobaccoExp70=mean(TobaccoExp) if Age==70
+egen TobaccoExp71=mean(TobaccoExp) if Age==71
+egen TobaccoExp72=mean(TobaccoExp) if Age==72
+egen TobaccoExp73=mean(TobaccoExp) if Age==73
+egen TobaccoExp74=mean(TobaccoExp) if Age==74
+egen TobaccoExp75=mean(TobaccoExp) if Age==75
+egen TobaccoExp76=mean(TobaccoExp) if Age==76
+egen TobaccoExp77=mean(TobaccoExp) if Age==77
+egen TobaccoExp78=mean(TobaccoExp) if Age==78
+egen TobaccoExp79=mean(TobaccoExp) if Age==79
+egen TobaccoExp80=mean(TobaccoExp) if Age==80
+
+replace AvTobaccoExp=TobaccoExp17 if Age==17
+replace AvTobaccoExp=TobaccoExp18 if Age==18
+replace AvTobaccoExp=TobaccoExp19 if Age==19
+replace AvTobaccoExp=TobaccoExp20 if Age==20
+replace AvTobaccoExp=TobaccoExp21 if Age==21
+replace AvTobaccoExp=TobaccoExp22 if Age==22
+replace AvTobaccoExp=TobaccoExp23 if Age==23
+replace AvTobaccoExp=TobaccoExp24 if Age==24
+replace AvTobaccoExp=TobaccoExp25 if Age==25
+replace AvTobaccoExp=TobaccoExp26 if Age==26
+replace AvTobaccoExp=TobaccoExp27 if Age==27
+replace AvTobaccoExp=TobaccoExp28 if Age==28
+replace AvTobaccoExp=TobaccoExp29 if Age==29
+replace AvTobaccoExp=TobaccoExp30 if Age==30
+replace AvTobaccoExp=TobaccoExp31 if Age==31
+replace AvTobaccoExp=TobaccoExp32 if Age==32
+replace AvTobaccoExp=TobaccoExp33 if Age==33
+replace AvTobaccoExp=TobaccoExp34 if Age==34
+replace AvTobaccoExp=TobaccoExp35 if Age==35
+replace AvTobaccoExp=TobaccoExp36 if Age==36
+replace AvTobaccoExp=TobaccoExp37 if Age==37
+replace AvTobaccoExp=TobaccoExp38 if Age==38
+replace AvTobaccoExp=TobaccoExp39 if Age==39
+replace AvTobaccoExp=TobaccoExp40 if Age==40
+replace AvTobaccoExp=TobaccoExp41 if Age==41
+replace AvTobaccoExp=TobaccoExp42 if Age==42
+replace AvTobaccoExp=TobaccoExp43 if Age==43
+replace AvTobaccoExp=TobaccoExp44 if Age==44
+replace AvTobaccoExp=TobaccoExp45 if Age==45
+replace AvTobaccoExp=TobaccoExp46 if Age==46
+replace AvTobaccoExp=TobaccoExp47 if Age==47
+replace AvTobaccoExp=TobaccoExp48 if Age==48
+replace AvTobaccoExp=TobaccoExp49 if Age==49
+replace AvTobaccoExp=TobaccoExp50 if Age==50
+replace AvTobaccoExp=TobaccoExp51 if Age==51
+replace AvTobaccoExp=TobaccoExp52 if Age==52
+replace AvTobaccoExp=TobaccoExp53 if Age==53
+replace AvTobaccoExp=TobaccoExp54 if Age==54
+replace AvTobaccoExp=TobaccoExp55 if Age==55
+replace AvTobaccoExp=TobaccoExp56 if Age==56
+replace AvTobaccoExp=TobaccoExp57 if Age==57
+replace AvTobaccoExp=TobaccoExp58 if Age==58
+replace AvTobaccoExp=TobaccoExp59 if Age==59
+replace AvTobaccoExp=TobaccoExp60 if Age==60
+replace AvTobaccoExp=TobaccoExp61 if Age==61
+replace AvTobaccoExp=TobaccoExp62 if Age==62
+replace AvTobaccoExp=TobaccoExp63 if Age==63
+replace AvTobaccoExp=TobaccoExp64 if Age==64
+replace AvTobaccoExp=TobaccoExp65 if Age==65
+replace AvTobaccoExp=TobaccoExp66 if Age==66
+replace AvTobaccoExp=TobaccoExp67 if Age==67
+replace AvTobaccoExp=TobaccoExp68 if Age==68
+replace AvTobaccoExp=TobaccoExp69 if Age==69
+replace AvTobaccoExp=TobaccoExp70 if Age==70
+replace AvTobaccoExp=TobaccoExp71 if Age==71
+replace AvTobaccoExp=TobaccoExp72 if Age==72
+replace AvTobaccoExp=TobaccoExp73 if Age==73
+replace AvTobaccoExp=TobaccoExp74 if Age==74
+replace AvTobaccoExp=TobaccoExp75 if Age==75
+replace AvTobaccoExp=TobaccoExp76 if Age==76
+replace AvTobaccoExp=TobaccoExp77 if Age==77
+replace AvTobaccoExp=TobaccoExp78 if Age==78
+replace AvTobaccoExp=TobaccoExp79 if Age==79
+replace AvTobaccoExp=TobaccoExp80 if Age==80
+
+
+
+
+#delimit ;
+
+histogram TobaccoExp if TobaccoExp>0, freq normal 
+xaxis(1 2)
+ylabel(0(10)60, grid) 
+xlabel(4.6 "mean" 
+        -8 "-1 s.d." 
+      13.2 "+1 s.d." 
+      25.8 "+2 s.d." 
+, axis(2) grid gmax)
+xtitle("", axis(2))
+subtitle("")
+note("")
+;
+#delimit cr
+
+
+
+#delimit ;
+
+histogram AlcoholExp if AlcoholExp>0, freq normal 
+xaxis(1 2)
+ylabel(0(10)60, grid) 
+xlabel(13.6 "mean" 
+        -9.5 "-1 s.d." 
+      37.7 "+1 s.d." 
+      60.8 "+2 s.d." 
+, axis(2) grid gmax)
+xtitle("", axis(2))
+subtitle("")
+note("")
+;
+#delimit cr
+
+
+
+
+
+
+******************************************************** RESULTS USING LOGS ************************************************
+
+************ TWO-PART MODEL - ALCOHOL ************
+
+*MODEL 1*
+
+* First part: probit for y > 0
+probit d_alcohol $Model1 
+
+est store lta1a 
+est table lta1a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnAlcohol $Model1 if d_alcohol==1
+
+est store lta1b 
+est table lta1b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part AlcoholExp if d_alcohol==1
+corr yhat2part AlcoholExp if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part AlcoholExp
+corr yhat2part AlcoholExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 2*
+
+* First part: probit for y > 0
+probit d_alcohol $Model2
+
+est store lta2a 
+est table lta2a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnAlcohol $Model2 if d_alcohol==1
+
+est store lta2b 
+est table lta2b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part AlcoholExp if d_alcohol==1
+corr yhat2part AlcoholExp if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part AlcoholExp
+corr yhat2part AlcoholExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 3*
+
+* First part: probit for y > 0
+probit d_alcohol $Model3
+
+est store lta3a 
+est table lta3a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnAlcohol $Model3 if d_alcohol==1
+
+est store lta3b 
+est table lta3b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part AlcoholExp if d_alcohol==1
+corr yhat2part AlcoholExp if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part AlcoholExp
+corr yhat2part AlcoholExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 4*
+
+* First part: probit for y > 0
+probit d_alcohol $Model4
+
+est store lta4a 
+est table lta4a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnAlcohol $Model4 if d_alcohol==1
+
+est store lta4b 
+est table lta4b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part AlcoholExp if d_alcohol==1
+corr yhat2part AlcoholExp if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part AlcoholExp
+corr yhat2part AlcoholExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 5*
+
+* First part: probit for y > 0
+probit d_alcohol $Model5
+
+est store lta5a 
+est table lta5a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnAlcohol $Model5 if d_alcohol==1
+
+est store lta5b 
+est table lta5b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part AlcoholExp if d_alcohol==1
+corr yhat2part AlcoholExp if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part AlcoholExp
+corr yhat2part AlcoholExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 6*
+
+* First part: probit for y > 0
+probit d_alcohol $Model6
+
+est store lta6a 
+est table lta6a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnAlcohol $Model6 if d_alcohol==1
+
+est store lta6b 
+est table lta6b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part AlcoholExp if d_alcohol==1
+corr yhat2part AlcoholExp if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part AlcoholExp
+corr yhat2part AlcoholExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 7*
+
+* First part: probit for y > 0
+probit d_alcohol $Model7
+
+est store lta7a 
+est table lta7a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnAlcohol $Model7 if d_alcohol==1
+
+est store lta7b 
+est table lta7b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part AlcoholExp if d_alcohol==1
+corr yhat2part AlcoholExp if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part AlcoholExp
+corr yhat2part AlcoholExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+drop  _est_twoparta _est_lta1a probsel2part _est_lta7b _est_lta7a _est_lta6b _est_lta6a _est_lta5b _est_lta5a _est_lta4b _est_lta4a _est_lta3b _est_lta3a _est_lta2b _est_lta2a _est_lta1b 
+
+
+************ TWO-PART MODEL - TOBACCO ************
+
+*MODEL 1*
+
+* First part: probit for y > 0
+probit d_tobacco $Model1 
+
+est store lta1a 
+est table lta1a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnTobacco $Model1 if d_tobacco==1
+
+est store lta1b 
+est table lta1b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for y > 0
+sum yhat2part TobaccoExp if d_tobacco==1
+corr yhat2part TobaccoExp if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part TobaccoExp
+corr yhat2part TobaccoExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 2*
+
+* First part: probit for y > 0
+probit d_tobacco $Model2
+
+est store lta2a 
+est table lta2a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnTobacco $Model2 if d_tobacco==1
+
+est store lta2b 
+est table lta2b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part TobaccoExp if d_tobacco==1
+corr yhat2part TobaccoExp if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part TobaccoExp
+corr yhat2part TobaccoExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 3*
+
+* First part: probit for y > 0
+probit d_tobacco $Model3
+
+est store lta3a 
+est table lta3a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnTobacco $Model3 if d_tobacco==1
+
+est store lta3b 
+est table lta3b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part TobaccoExp if d_tobacco==1
+corr yhat2part TobaccoExp if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part TobaccoExp
+corr yhat2part TobaccoExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 4*
+
+* First part: probit for y > 0
+probit d_tobacco $Model4
+
+est store lta4a 
+est table lta4a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnTobacco $Model4 if d_tobacco==1
+
+est store lta4b 
+est table lta4b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part TobaccoExp if d_tobacco==1
+corr yhat2part TobaccoExp if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part TobaccoExp
+corr yhat2part TobaccoExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 5*
+
+* First part: probit for y > 0
+probit d_tobacco $Model5
+
+est store lta5a 
+est table lta5a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnTobacco $Model5 if d_tobacco==1
+
+est store lta5b 
+est table lta5b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part TobaccoExp if d_tobacco==1
+corr yhat2part TobaccoExp if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part TobaccoExp
+corr yhat2part TobaccoExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 6*
+
+* First part: probit for y > 0
+probit d_tobacco $Model6
+
+est store lta6a 
+est table lta6a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnTobacco $Model6 if d_tobacco==1
+
+est store lta6b 
+est table lta6b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part TobaccoExp if d_tobacco==1
+corr yhat2part TobaccoExp if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part TobaccoExp
+corr yhat2part TobaccoExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+*MODEL 7*
+
+* First part: probit for y > 0
+probit d_tobacco $Model7
+
+est store lta7a 
+est table lta7a, star
+
+estimates store twoparta     
+scalar llprobit = e(ll)     /* Log-likelihood */
+predict probsel2part, pr     /* Pr[y>0] = PHI(x'b) */ 
+
+* Second part: OLS for log of positive values 
+regress lnTobacco $Model7 if d_tobacco==1
+
+est store lta7b 
+est table lta7b, star
+
+estimates store twopartb   
+scalar lllognormal = e(ll)  /* Log-likelihood */
+scalar sols = e(rmse)       /* Standard error of the regression */
+predict xbpos, xb        /* x'b */
+
+
+* Create two-part model log-likelihood
+scalar lltwopart = llprobit + lllognormal
+di "lltwopart = " lltwopart
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(pLNTobacco + (s^2)/2)  for y > 0
+* and E[y] = Pr[y>0]*exp(xb + (s^2)/2) for all y
+gen yhatpos = exp(xbpos +0.5*(sols^2)) 
+gen yhat2part = probsel2part*yhatpos
+
+* Compare predictions to actual for TobaccoExp > 0
+sum yhat2part TobaccoExp if d_tobacco==1
+corr yhat2part TobaccoExp if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum yhat2part TobaccoExp
+corr yhat2part TobaccoExp
+
+drop  _est_twoparta yhat2part yhatpos xbpos _est_twopartb probsel2part
+
+drop  _est_lta1a _est_lta7b _est_lta7a _est_lta6b _est_lta6a _est_lta5b _est_lta5a _est_lta4b _est_lta4a _est_lta3b _est_lta3a _est_lta2b _est_lta2a _est_lta1b 
+
+
+
+
+
+
+************ HECKMAN SAMPLE SELECTION MODEL ************
+
+*ALCOHOL
+
+*MODEL 1
+
+* MLE for sample selection model
+heckman lnAlcohol $Model1 , select (d_alcohol = $Model1)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..12],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pAlcoholposhml = exp(yposhml + (shml^2)/2) 
+gen pAlcoholallhml = probselhml*pAlcoholposhml
+
+* Compare predictions to actual for MED > 0
+sum AlcoholExp pAlcoholposhml if AlcoholExp > 0 
+corr lnAlcohol yposhml AlcoholExp if AlcoholExp > 0
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholallhml 
+corr AlcoholExp pAlcoholallhml d_alcohol probselhml
+
+drop  pAlcoholallhml pAlcoholposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha1 
+est table lha1, star
+
+*MODEL 2
+
+* MLE for sample selection model
+heckman lnAlcohol $Model2 , select (d_alcohol = $Model2)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pAlcoholposhml = exp(yposhml + (shml^2)/2) 
+gen pAlcoholallhml = probselhml*pAlcoholposhml
+
+* Compare predictions to actual for MED > 0
+sum AlcoholExp pAlcoholposhml if AlcoholExp > 0 
+corr lnAlcohol yposhml AlcoholExp if AlcoholExp > 0
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholallhml 
+corr AlcoholExp pAlcoholallhml d_alcohol probselhml
+
+drop  pAlcoholallhml pAlcoholposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha2 
+est table lha2, star
+
+*MODEL 3
+
+* MLE for sample selection model
+heckman lnAlcohol $Model3 , select (d_alcohol = $Model3)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..26],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pAlcoholposhml = exp(yposhml + (shml^2)/2) 
+gen pAlcoholallhml = probselhml*pAlcoholposhml
+
+* Compare predictions to actual for MED > 0
+sum AlcoholExp pAlcoholposhml if AlcoholExp > 0 
+corr lnAlcohol yposhml AlcoholExp if AlcoholExp > 0
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholallhml 
+corr AlcoholExp pAlcoholallhml d_alcohol probselhml
+
+drop  pAlcoholallhml pAlcoholposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha3 
+est table lha3, star
+
+*MODEL 4
+
+* MLE for sample selection model
+heckman lnAlcohol $Model4 , select (d_alcohol = $Model4)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..28],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pAlcoholposhml = exp(yposhml + (shml^2)/2) 
+gen pAlcoholallhml = probselhml*pAlcoholposhml
+
+* Compare predictions to actual for MED > 0
+sum AlcoholExp pAlcoholposhml if AlcoholExp > 0 
+corr lnAlcohol yposhml AlcoholExp if AlcoholExp > 0
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholallhml 
+corr AlcoholExp pAlcoholallhml d_alcohol probselhml
+
+drop  pAlcoholallhml pAlcoholposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha4 
+est table lha4, star
+
+*MODEL 5
+
+* MLE for sample selection model
+heckman lnAlcohol $Model5 , select (d_alcohol = $Model5)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pAlcoholposhml = exp(yposhml + (shml^2)/2) 
+gen pAlcoholallhml = probselhml*pAlcoholposhml
+
+* Compare predictions to actual for MED > 0
+sum AlcoholExp pAlcoholposhml if AlcoholExp > 0 
+corr lnAlcohol yposhml AlcoholExp if AlcoholExp > 0
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholallhml 
+corr AlcoholExp pAlcoholallhml d_alcohol probselhml
+
+drop  pAlcoholallhml pAlcoholposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha5
+est table lha5, star
+
+*MODEL 6
+
+* MLE for sample selection model
+heckman lnAlcohol $Model6 , select (d_alcohol = $Model6)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..20],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pAlcoholposhml = exp(yposhml + (shml^2)/2) 
+gen pAlcoholallhml = probselhml*pAlcoholposhml
+
+* Compare predictions to actual for MED > 0
+sum AlcoholExp pAlcoholposhml if AlcoholExp > 0 
+corr lnAlcohol yposhml AlcoholExp if AlcoholExp > 0
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholallhml 
+corr AlcoholExp pAlcoholallhml d_alcohol probselhml
+
+drop  pAlcoholallhml pAlcoholposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha6 
+est table lha6, star
+
+
+*MODEL 7
+
+* MLE for sample selection model
+heckman lnAlcohol $Model7 , select (d_alcohol = $Model7)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..62],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pAlcoholposhml = exp(yposhml + (shml^2)/2) 
+gen pAlcoholallhml = probselhml*pAlcoholposhml
+
+* Compare predictions to actual for MED > 0
+sum AlcoholExp pAlcoholposhml if AlcoholExp > 0 
+corr lnAlcohol yposhml AlcoholExp if AlcoholExp > 0
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholallhml 
+corr AlcoholExp pAlcoholallhml d_alcohol probselhml
+
+drop  pAlcoholallhml pAlcoholposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha7 
+est table lha7, star
+
+drop  _est_lha7 _est_heckmle _est_lha6 _est_lha5 _est_lha4 _est_lha3 _est_lha2 _est_lha1
+
+
+*TOBACCO
+
+*MODEL 1
+
+* MLE for sample selection model
+heckman lnTobacco $Model1 , select (d_tobacco = $Model1)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..12],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pTobaccoposhml = exp(yposhml + (shml^2)/2) 
+gen pTobaccoallhml = probselhml*pTobaccoposhml
+
+* Compare predictions to actual for MED > 0
+sum TobaccoExp pTobaccoposhml if TobaccoExp > 0 
+corr lnTobacco yposhml TobaccoExp if TobaccoExp > 0
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoallhml 
+corr TobaccoExp pTobaccoallhml d_tobacco probselhml
+
+drop  pTobaccoallhml pTobaccoposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha1 
+est table lha1, star
+
+*MODEL 2
+
+* MLE for sample selection model
+heckman lnTobacco $Model2 , select (d_tobacco = $Model2)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pTobaccoposhml = exp(yposhml + (shml^2)/2) 
+gen pTobaccoallhml = probselhml*pTobaccoposhml
+
+* Compare predictions to actual for MED > 0
+sum TobaccoExp pTobaccoposhml if TobaccoExp > 0 
+corr lnTobacco yposhml TobaccoExp if TobaccoExp > 0
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoallhml 
+corr TobaccoExp pTobaccoallhml d_tobacco probselhml
+
+drop  pTobaccoallhml pTobaccoposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha2 
+est table lha2, star
+
+*MODEL 3
+
+* MLE for sample selection model
+heckman lnTobacco $Model3 , select (d_tobacco = $Model3)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..26],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pTobaccoposhml = exp(yposhml + (shml^2)/2) 
+gen pTobaccoallhml = probselhml*pTobaccoposhml
+
+* Compare predictions to actual for MED > 0
+sum TobaccoExp pTobaccoposhml if TobaccoExp > 0 
+corr lnTobacco yposhml TobaccoExp if TobaccoExp > 0
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoallhml 
+corr TobaccoExp pTobaccoallhml d_tobacco probselhml
+
+drop  pTobaccoallhml pTobaccoposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha3 
+est table lha3, star
+
+*MODEL 4
+
+* MLE for sample selection model
+heckman lnTobacco $Model4 , select (d_tobacco = $Model4)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..28],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pTobaccoposhml = exp(yposhml + (shml^2)/2) 
+gen pTobaccoallhml = probselhml*pTobaccoposhml
+
+* Compare predictions to actual for MED > 0
+sum TobaccoExp pTobaccoposhml if TobaccoExp > 0 
+corr lnTobacco yposhml TobaccoExp if TobaccoExp > 0
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoallhml 
+corr TobaccoExp pTobaccoallhml d_tobacco probselhml
+
+drop  pTobaccoallhml pTobaccoposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha4 
+est table lha4, star
+
+*MODEL 5
+
+* MLE for sample selection model
+heckman lnTobacco $Model5 , select (d_tobacco = $Model5)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pTobaccoposhml = exp(yposhml + (shml^2)/2) 
+gen pTobaccoallhml = probselhml*pTobaccoposhml
+
+* Compare predictions to actual for MED > 0
+sum TobaccoExp pTobaccoposhml if TobaccoExp > 0 
+corr lnTobacco yposhml TobaccoExp if TobaccoExp > 0
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoallhml 
+corr TobaccoExp pTobaccoallhml d_tobacco probselhml
+
+drop  pTobaccoallhml pTobaccoposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha5
+est table lha5, star
+
+*MODEL 6
+
+* MLE for sample selection model
+heckman lnTobacco $Model6 , select (d_tobacco = $Model6)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..20],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pTobaccoposhml = exp(yposhml + (shml^2)/2) 
+gen pTobaccoallhml = probselhml*pTobaccoposhml
+
+* Compare predictions to actual for MED > 0
+sum TobaccoExp pTobaccoposhml if TobaccoExp > 0 
+corr lnTobacco yposhml TobaccoExp if TobaccoExp > 0
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoallhml 
+corr TobaccoExp pTobaccoallhml d_tobacco probselhml
+
+drop  pTobaccoallhml pTobaccoposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha6 
+est table lha6, star
+
+
+*MODEL 7
+
+* MLE for sample selection model
+heckman lnTobacco $Model7 , select (d_tobacco = $Model7)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..62],e(sigma)
+estimates store heckmle
+scalar llhecklogs = e(ll)      /* Log-likelihood */
+scalar shml = e(sigma)         /* s where Var[v]=s^2 */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhml, xb           /* E[y*] = x'b */
+predict yposhml, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) */
+predict invmillhml, mills      /* lamda(z'a) = phi(z'a)/PHI(z'a) */
+predict probselhml, psel      /* PHI(z'a) */
+* The following not appropriate here as it sets y=0 if I<0
+* whereas here data is in logs and y=ln(MED)=-infinity if I<0  
+predict yallhml, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+sum ystarhml yposhml invmillhml probselhml yallhml
+
+* Create predictions of level of expenditures not logs
+* E[y] = exp(ypos + (s^2)/2)  for y > 0    Var[v]=s^2
+* and E[y] = Pr[y>0]*exp(ypos + (s^2)/2) for all y
+gen pTobaccoposhml = exp(yposhml + (shml^2)/2) 
+gen pTobaccoallhml = probselhml*pTobaccoposhml
+
+* Compare predictions to actual for MED > 0
+sum TobaccoExp pTobaccoposhml if TobaccoExp > 0 
+corr lnTobacco yposhml TobaccoExp if TobaccoExp > 0
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoallhml 
+corr TobaccoExp pTobaccoallhml d_tobacco probselhml
+
+drop  pTobaccoallhml pTobaccoposhml yallhml probselhml yposhml invmillhml ystarhml
+
+est store lha7 
+est table lha7, star
+
+drop  _est_lha7 _est_heckmle _est_lha6 _est_lha5 _est_lha4 _est_lha3 _est_lha2 _est_lha1
+
+
+
+************ DOUBLE HURDLE MODEL ******************
+
+
+* ALCOHOL
+
+*MODEL 1
+
+ml model lf dhurdle_no0 (lnAlcohol = $Model1) (d_alcohol = $Model1) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(100)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnAlcohol = $Model1) (d_alcohol = $Model1) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(100)
+
+est store results 
+est table results, star
+
+
+
+
+*MODEL 2
+   
+ml model lf dhurdle_no0 (lnAlcohol = $Model2) (d_alcohol = $Model2) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(100)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnAlcohol = $Model2) (d_alcohol = $Model2) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(100)
+
+est store results 
+est table results, star
+
+*MODEL 3
+
+ml model lf dhurdle_no0 (lnAlcohol = $Model3) (d_alcohol = $Model3) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(50)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnAlcohol = $Model3) (d_alcohol = $Model3) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(50)
+
+est store results 
+est table results, star   
+
+
+*MODEL 4
+
+ml model lf dhurdle_no0 (lnAlcohol = $Model4) (d_alcohol = $Model4) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(50)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnAlcohol = $Model4) (d_alcohol = $Model4) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(50)
+
+est store results 
+est table results, star   
+   
+
+
+*MODEL 5
+
+ml model lf dhurdle_no0 (lnAlcohol = $Model5) (d_alcohol = $Model5) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(50)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnAlcohol = $Model5) (d_alcohol = $Model5) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(50)
+
+est store results 
+est table results, star   
+   
+
+*MODEL 6
+
+ml model lf dhurdle_no0 (lnAlcohol = $Model6) (d_alcohol = $Model6) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(50)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnAlcohol = $Model6) (d_alcohol = $Model6) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(50)
+
+est store results 
+est table results, star      
+   
+
+
+*MODEL 7
+   
+ml model lf dhurdle_no0 (lnAlcohol = $Model7) (d_alcohol = $Model7) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(50)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnAlcohol = $Model7) (d_alcohol = $Model7) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(50)
+
+est store results 
+est table results, star     
+
+
+* TOBACCO
+
+*MODEL 1
+   
+ml model lf dhurdle_no0 (lnTobacco = $Model1) (d_tobacco = $Model1) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(50)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnTobacco = $Model1) (d_tobacco = $Model1) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(50)
+
+est store results 
+est table results, star   
+
+*MODEL 2
+   
+ml model lf dhurdle_no0 (lnTobacco = $Model2) (d_tobacco = $Model2) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(50)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnTobacco = $Model2) (d_tobacco = $Model2) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(50)
+
+est store results 
+est table results, star   
+
+*MODEL 3
+
+ml model lf dhurdle_no0 (lnTobacco = $Model3) (d_tobacco = $Model3) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnTobacco = $Model3) (d_tobacco = $Model3) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star    
+
+
+*MODEL 4
+   
+ml model lf dhurdle_no0 (lnTobacco = $Model4) (d_tobacco = $Model4) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnTobacco = $Model4) (d_tobacco = $Model4) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star    
+
+*MODEL 5
+   
+ml model lf dhurdle_no0 (lnTobacco = $Model5) (d_tobacco = $Model5) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnTobacco = $Model5) (d_tobacco = $Model5) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star    
+
+*MODEL 6
+
+* MLE for sample selection model
+heckman lnTobacco $Model6 , select (d_tobacco = $Model6)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..20],e(sigma)   
+
+ml model lf dhurdle_no0 (lnTobacco = $Model6) (d_tobacco = $Model6) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnTobacco = $Model6) (d_tobacco = $Model6) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star    
+
+
+*MODEL 7
+
+* MLE for sample selection model
+heckman lnTobacco $Model7 , select (d_tobacco = $Model7)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..62],e(sigma)   
+
+ml model lf dhurdle_no0 (lnTobacco = $Model7) (d_tobacco = $Model7) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (lnTobacco = $Model7) (d_tobacco = $Model7) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star    
+
+
+
+************************************************ RESULTS USING NORMALITY ASSUMPTION *****************************************
+
+
+************ TWO-PART MODEL ************
+
+* TOBACCO *
+
+*MODEL 1
+
+* First part: probit for TobaccoExp > 0     
+
+probit d_tobacco $Model1  
+estimates store twopartanorm     
+scalar llprobitnorm = e(ll)     /* Log-likelihood */
+predict probsel2partnorm, pr     
+
+est store ntt1b
+est table ntt1b, star
+
+* Second part: OLS for positive values 
+regress TobaccoExp $Model1 if d_tobacco==1
+estimates store twopartbnorm   
+scalar llnormal = e(ll)  /* Log-likelihood */
+scalar solsnorm = e(rmse)       /* Standard error of the regression */
+predict pTobacconorm, xb          /* Predicted mean from OLS */
+predict rTobacconorm, residuals
+
+est store ntt1b
+est table ntt1b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnorm = llprobitnorm + llnormal
+di "lltwopartnorm = " lltwopartnorm
+
+* Create predictions
+gen pTobaccoall2partnorm = probsel2partnorm*pTobacconorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp pTobaccoall2partnorm  if d_tobacco==1 
+corr TobaccoExp pTobaccoall2partnorm  if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoall2partnorm 
+corr TobaccoExp pTobaccoall2partnorm
+
+drop _est_twopartanorm probsel2partnorm _est_twopartbnorm pTobacconorm rTobacconorm pTobaccoall2partnorm
+
+* MODEL 2
+
+* First part: probit for TobaccoExp > 0     
+
+probit d_tobacco $Model2  
+estimates store twopartanorm     
+scalar llprobitnorm = e(ll)     /* Log-likelihood */
+predict probsel2partnorm, pr     
+
+est store ntt2a
+est table ntt2a, star
+
+* Second part: OLS for positive values 
+regress TobaccoExp $Model2 if d_tobacco==1
+estimates store twopartbnorm   
+scalar llnormal = e(ll)  /* Log-likelihood */
+scalar solsnorm = e(rmse)       /* Standard error of the regression */
+predict pTobacconorm, xb          /* Predicted mean from OLS */
+predict rTobacconorm, residuals
+
+est store ntt2b
+est table ntt2b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnorm = llprobitnorm + llnormal
+di "lltwopartnorm = " lltwopartnorm
+
+* Create predictions
+gen pTobaccoall2partnorm = probsel2partnorm*pTobacconorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp pTobaccoall2partnorm  if d_tobacco==1 
+corr TobaccoExp pTobaccoall2partnorm  if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoall2partnorm 
+corr TobaccoExp pTobaccoall2partnorm
+
+drop _est_twopartanorm probsel2partnorm _est_twopartbnorm pTobacconorm rTobacconorm pTobaccoall2partnorm
+
+
+* MODEL 3
+
+* First part: probit for TobaccoExp > 0     
+
+probit d_tobacco $Model3  
+estimates store twopartanorm     
+scalar llprobitnorm = e(ll)     /* Log-likelihood */
+predict probsel2partnorm, pr     
+
+est store ntt3a
+est table ntt3a, star
+
+* Second part: OLS for positive values 
+regress TobaccoExp $Model3 if d_tobacco==1
+estimates store twopartbnorm   
+scalar llnormal = e(ll)  /* Log-likelihood */
+scalar solsnorm = e(rmse)       /* Standard error of the regression */
+predict pTobacconorm, xb          /* Predicted mean from OLS */
+predict rTobacconorm, residuals
+
+est store ntt3b
+est table ntt3b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnorm = llprobitnorm + llnormal
+di "lltwopartnorm = " lltwopartnorm
+
+* Create predictions
+gen pTobaccoall2partnorm = probsel2partnorm*pTobacconorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp pTobaccoall2partnorm  if d_tobacco==1 
+corr TobaccoExp pTobaccoall2partnorm  if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoall2partnorm 
+corr TobaccoExp pTobaccoall2partnorm
+
+drop _est_twopartanorm probsel2partnorm _est_twopartbnorm pTobacconorm rTobacconorm pTobaccoall2partnorm
+
+
+* MODEL 4
+
+* First part: probit for TobaccoExp > 0     
+
+probit d_tobacco $Model4  
+estimates store twopartanorm     
+scalar llprobitnorm = e(ll)     /* Log-likelihood */
+predict probsel2partnorm, pr     
+
+est store ntt4a
+est table ntt4a, star
+
+* Second part: OLS for positive values 
+regress TobaccoExp $Model4 if d_tobacco==1
+estimates store twopartbnorm   
+scalar llnormal = e(ll)  /* Log-likelihood */
+scalar solsnorm = e(rmse)       /* Standard error of the regression */
+predict pTobacconorm, xb          /* Predicted mean from OLS */
+predict rTobacconorm, residuals
+
+est store ntt4b
+est table ntt4b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnorm = llprobitnorm + llnormal
+di "lltwopartnorm = " lltwopartnorm
+
+* Create predictions
+gen pTobaccoall2partnorm = probsel2partnorm*pTobacconorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp pTobaccoall2partnorm  if d_tobacco==1 
+corr TobaccoExp pTobaccoall2partnorm  if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoall2partnorm 
+corr TobaccoExp pTobaccoall2partnorm
+
+drop _est_twopartanorm probsel2partnorm _est_twopartbnorm pTobacconorm rTobacconorm pTobaccoall2partnorm
+
+
+* MODEL 5
+
+* First part: probit for TobaccoExp > 0     
+
+probit d_tobacco $Model5  
+estimates store twopartanorm     
+scalar llprobitnorm = e(ll)     /* Log-likelihood */
+predict probsel2partnorm, pr     
+
+est store ntt5a
+est table ntt5a, star
+
+* Second part: OLS for positive values 
+regress TobaccoExp $Model5 if d_tobacco==1
+estimates store twopartbnorm   
+scalar llnormal = e(ll)  /* Log-likelihood */
+scalar solsnorm = e(rmse)       /* Standard error of the regression */
+predict pTobacconorm, xb          /* Predicted mean from OLS */
+predict rTobacconorm, residuals
+
+est store ntt5b
+est table ntt5b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnorm = llprobitnorm + llnormal
+di "lltwopartnorm = " lltwopartnorm
+
+* Create predictions
+gen pTobaccoall2partnorm = probsel2partnorm*pTobacconorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp pTobaccoall2partnorm  if d_tobacco==1 
+corr TobaccoExp pTobaccoall2partnorm  if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoall2partnorm 
+corr TobaccoExp pTobaccoall2partnorm
+
+drop _est_twopartanorm probsel2partnorm _est_twopartbnorm pTobacconorm rTobacconorm pTobaccoall2partnorm
+
+
+
+* MODEL 6
+
+* First part: probit for TobaccoExp > 0     
+
+probit d_tobacco $Model6  
+estimates store twopartanorm     
+scalar llprobitnorm = e(ll)     /* Log-likelihood */
+predict probsel2partnorm, pr     
+
+est store ntt6a
+est table ntt6a, star
+
+* Second part: OLS for positive values 
+regress TobaccoExp $Model6 if d_tobacco==1
+estimates store twopartbnorm   
+scalar llnormal = e(ll)  /* Log-likelihood */
+scalar solsnorm = e(rmse)       /* Standard error of the regression */
+predict pTobacconorm, xb          /* Predicted mean from OLS */
+predict rTobacconorm, residuals
+
+est store ntt6b
+est table ntt6b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnorm = llprobitnorm + llnormal
+di "lltwopartnorm = " lltwopartnorm
+
+* Create predictions
+gen pTobaccoall2partnorm = probsel2partnorm*pTobacconorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp pTobaccoall2partnorm  if d_tobacco==1 
+corr TobaccoExp pTobaccoall2partnorm  if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoall2partnorm 
+corr TobaccoExp pTobaccoall2partnorm
+
+drop _est_twopartanorm probsel2partnorm _est_twopartbnorm pTobacconorm rTobacconorm pTobaccoall2partnorm
+
+
+* MODEL 7
+
+* First part: probit for TobaccoExp > 0     
+
+probit d_tobacco $Model7  
+estimates store twopartanorm     
+scalar llprobitnorm = e(ll)     /* Log-likelihood */
+predict probsel2partnorm, pr     
+
+est store ntt7a
+est table ntt7a, star
+
+* Second part: OLS for positive values 
+regress TobaccoExp $Model7 if d_tobacco==1
+estimates store twopartbnorm   
+scalar llnormal = e(ll)  /* Log-likelihood */
+scalar solsnorm = e(rmse)       /* Standard error of the regression */
+predict pTobacconorm, xb          /* Predicted mean from OLS */
+predict rTobacconorm, residuals
+
+est store ntt7b
+est table ntt7b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnorm = llprobitnorm + llnormal
+di "lltwopartnorm = " lltwopartnorm
+
+* Create predictions
+gen pTobaccoall2partnorm = probsel2partnorm*pTobacconorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp pTobaccoall2partnorm  if d_tobacco==1 
+corr TobaccoExp pTobaccoall2partnorm  if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp pTobaccoall2partnorm 
+corr TobaccoExp pTobaccoall2partnorm
+
+drop _est_twopartanorm probsel2partnorm _est_twopartbnorm pTobacconorm rTobacconorm pTobaccoall2partnorm
+
+
+
+* ALCOHOL *
+
+*MODEL1*
+
+* First part: probit for AlcoholExp > 0     
+probit d_alcohol $Model1  
+estimates store twopartanormALC     
+scalar llprobitnormALC = e(ll)     /* Log-likelihood */
+predict probsel2partnormALC, pr     
+
+est store ntt1a
+est table ntt1a, star
+
+* Second part: OLS for positive values 
+regress AlcoholExp $Model1 if d_alcohol==1
+estimates store twopartbnormALC   
+scalar llnormalALC = e(ll)  /* Log-likelihood */
+scalar solsnormALC = e(rmse)       /* Standard error of the regression */
+predict pAlcoholnorm, xb          /* Predicted mean from OLS */
+predict rAlcoholnorm, residuals
+
+est store ntt1b
+est table ntt1b, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnormALC = llprobitnormALC + llnormalALC
+di "lltwopartnormALC = " lltwopartnormALC
+
+* Create predictions
+gen pAlcoholall2partnorm = probsel2partnormALC*pAlcoholnorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp pAlcoholall2partnorm  if d_alcohol==1 
+corr AlcoholExp pAlcoholall2partnorm  if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholall2partnorm 
+corr AlcoholExp pAlcoholall2partnorm
+
+drop _est_twopartanormALC probsel2partnormALC _est_twopartbnormALC pAlcoholnorm rAlcoholnorm pAlcoholall2partnorm
+
+
+*MODEL 2*
+
+* First part: probit for AlcoholExp > 0     
+probit d_alcohol $Model2  
+estimates store twopartanormALC     
+scalar llprobitnormALC = e(ll)     /* Log-likelihood */
+predict probsel2partnormALC, pr     
+
+est store ntt1a
+est table ntt1a, star
+
+* Second part: OLS for positive values 
+regress AlcoholExp $Model2 if d_alcohol==1
+estimates store twopartbnormALC   
+scalar llnormalALC = e(ll)  /* Log-likelihood */
+scalar solsnormALC = e(rmse)       /* Standard error of the regression */
+predict pAlcoholnorm, xb          /* Predicted mean from OLS */
+predict rAlcoholnorm, residuals
+
+est store ntt1a
+est table ntt1a, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnormALC = llprobitnormALC + llnormalALC
+di "lltwopartnormALC = " lltwopartnormALC
+
+* Create predictions
+gen pAlcoholall2partnorm = probsel2partnormALC*pAlcoholnorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp pAlcoholall2partnorm  if d_alcohol==1 
+corr AlcoholExp pAlcoholall2partnorm  if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholall2partnorm 
+corr AlcoholExp pAlcoholall2partnorm
+
+drop _est_twopartanormALC probsel2partnormALC _est_twopartbnormALC pAlcoholnorm rAlcoholnorm pAlcoholall2partnorm
+
+
+*MODEL 3
+
+* First part: probit for AlcoholExp > 0     
+probit d_alcohol $Model3  
+estimates store twopartanormALC     
+scalar llprobitnormALC = e(ll)     /* Log-likelihood */
+predict probsel2partnormALC, pr     
+
+est store ntt1a
+est table ntt1a, star
+
+* Second part: OLS for positive values 
+regress AlcoholExp $Model3 if d_alcohol==1
+estimates store twopartbnormALC   
+scalar llnormalALC = e(ll)  /* Log-likelihood */
+scalar solsnormALC = e(rmse)       /* Standard error of the regression */
+predict pAlcoholnorm, xb          /* Predicted mean from OLS */
+predict rAlcoholnorm, residuals
+
+est store ntt1a
+est table ntt1a, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnormALC = llprobitnormALC + llnormalALC
+di "lltwopartnormALC = " lltwopartnormALC
+
+* Create predictions
+gen pAlcoholall2partnorm = probsel2partnormALC*pAlcoholnorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp pAlcoholall2partnorm  if d_alcohol==1 
+corr AlcoholExp pAlcoholall2partnorm  if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholall2partnorm 
+corr AlcoholExp pAlcoholall2partnorm
+
+drop _est_twopartanormALC probsel2partnormALC _est_twopartbnormALC pAlcoholnorm rAlcoholnorm pAlcoholall2partnorm
+
+* MODEL 4 *
+
+* First part: probit for AlcoholExp > 0     
+probit d_alcohol $Model4  
+estimates store twopartanormALC     
+scalar llprobitnormALC = e(ll)     /* Log-likelihood */
+predict probsel2partnormALC, pr     
+
+est store ntt1a
+est table ntt1a, star
+
+* Second part: OLS for positive values 
+regress AlcoholExp $Model4 if d_alcohol==1
+estimates store twopartbnormALC   
+scalar llnormalALC = e(ll)  /* Log-likelihood */
+scalar solsnormALC = e(rmse)       /* Standard error of the regression */
+predict pAlcoholnorm, xb          /* Predicted mean from OLS */
+predict rAlcoholnorm, residuals
+
+est store ntt1a
+est table ntt1a, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnormALC = llprobitnormALC + llnormalALC
+di "lltwopartnormALC = " lltwopartnormALC
+
+* Create predictions
+gen pAlcoholall2partnorm = probsel2partnormALC*pAlcoholnorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp pAlcoholall2partnorm  if d_alcohol==1 
+corr AlcoholExp pAlcoholall2partnorm  if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholall2partnorm 
+corr AlcoholExp pAlcoholall2partnorm
+
+drop _est_twopartanormALC probsel2partnormALC _est_twopartbnormALC pAlcoholnorm rAlcoholnorm pAlcoholall2partnorm
+
+* MODEL 5 *
+
+* First part: probit for AlcoholExp > 0     
+probit d_alcohol $Model5  
+estimates store twopartanormALC     
+scalar llprobitnormALC = e(ll)     /* Log-likelihood */
+predict probsel2partnormALC, pr     
+
+est store ntt1a
+est table ntt1a, star
+
+* Second part: OLS for positive values 
+regress AlcoholExp $Model5 if d_alcohol==1
+estimates store twopartbnormALC   
+scalar llnormalALC = e(ll)  /* Log-likelihood */
+scalar solsnormALC = e(rmse)       /* Standard error of the regression */
+predict pAlcoholnorm, xb          /* Predicted mean from OLS */
+predict rAlcoholnorm, residuals
+
+est store ntt1a
+est table ntt1a, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnormALC = llprobitnormALC + llnormalALC
+di "lltwopartnormALC = " lltwopartnormALC
+
+* Create predictions
+gen pAlcoholall2partnorm = probsel2partnormALC*pAlcoholnorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp pAlcoholall2partnorm  if d_alcohol==1 
+corr AlcoholExp pAlcoholall2partnorm  if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholall2partnorm 
+corr AlcoholExp pAlcoholall2partnorm
+
+drop _est_twopartanormALC probsel2partnormALC _est_twopartbnormALC pAlcoholnorm rAlcoholnorm pAlcoholall2partnorm
+
+
+* MODEL 6*
+
+
+* First part: probit for AlcoholExp > 0     
+probit d_alcohol $Model6  
+estimates store twopartanormALC     
+scalar llprobitnormALC = e(ll)     /* Log-likelihood */
+predict probsel2partnormALC, pr     
+
+est store ntt1a
+est table ntt1a, star
+
+* Second part: OLS for positive values 
+regress AlcoholExp $Model6 if d_alcohol==1
+estimates store twopartbnormALC   
+scalar llnormalALC = e(ll)  /* Log-likelihood */
+scalar solsnormALC = e(rmse)       /* Standard error of the regression */
+predict pAlcoholnorm, xb          /* Predicted mean from OLS */
+predict rAlcoholnorm, residuals
+
+
+est store ntt1a
+est table ntt1a, star
+
+* Create two-part model log-likelihood
+scalar lltwopartnormALC = llprobitnormALC + llnormalALC
+di "lltwopartnormALC = " lltwopartnormALC
+
+* Create predictions
+gen pAlcoholall2partnorm = probsel2partnormALC*pAlcoholnorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp pAlcoholall2partnorm  if d_alcohol==1 
+corr AlcoholExp pAlcoholall2partnorm  if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholall2partnorm 
+corr AlcoholExp pAlcoholall2partnorm
+
+drop _est_twopartanormALC probsel2partnormALC _est_twopartbnormALC pAlcoholnorm rAlcoholnorm pAlcoholall2partnorm
+
+
+* MODEL 7 *
+
+
+* First part: probit for AlcoholExp > 0     
+probit d_alcohol $Model7  
+estimates store twopartanormALC     
+scalar llprobitnormALC = e(ll)     /* Log-likelihood */
+predict probsel2partnormALC, pr     
+
+est store ntt1a
+est table ntt1a, star
+
+* Second part: OLS for positive values 
+regress AlcoholExp $Model7 if d_alcohol==1
+estimates store twopartbnormALC   
+scalar llnormalALC = e(ll)  /* Log-likelihood */
+scalar solsnormALC = e(rmse)       /* Standard error of the regression */
+predict pAlcoholnorm, xb          /* Predicted mean from OLS */
+predict rAlcoholnorm, residuals
+
+est store ntt1a
+est table ntt1a, star
+
+
+* Create two-part model log-likelihood
+scalar lltwopartnormALC = llprobitnormALC + llnormalALC
+di "lltwopartnormALC = " lltwopartnormALC
+
+* Create predictions
+gen pAlcoholall2partnorm = probsel2partnormALC*pAlcoholnorm
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp pAlcoholall2partnorm  if d_alcohol==1 
+corr AlcoholExp pAlcoholall2partnorm  if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp pAlcoholall2partnorm 
+corr AlcoholExp pAlcoholall2partnorm
+
+drop _est_twopartanormALC probsel2partnormALC _est_twopartbnormALC pAlcoholnorm rAlcoholnorm pAlcoholall2partnorm
+
+
+
+
+
+
+************ HECKMAN SAMPLE SELECTION MODEL ************
+
+*ALCOHOL
+
+*MODEL 1
+
+* MLE for sample selection model
+heckman AlcoholExp $Model1 , select (d_alcohol = $Model1)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..12],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 2
+
+* MLE for sample selection model
+heckman AlcoholExp $Model2 , select (d_alcohol = $Model2)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm 
+
+*MODEL 3
+
+* MLE for sample selection model
+heckman AlcoholExp $Model3 , select (d_alcohol = $Model3)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..26],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 4
+
+* MLE for sample selection model
+heckman AlcoholExp $Model4 , select (d_alcohol = $Model4)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..28],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 5
+
+* MLE for sample selection model
+heckman AlcoholExp $Model5 , select (d_alcohol = $Model5)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 6
+
+* MLE for sample selection model
+heckman AlcoholExp $Model6 , select (d_alcohol = $Model6) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..20],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 7
+
+* MLE for sample selection model
+heckman AlcoholExp $Model7 , select (d_alcohol = $Model7) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..62],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr AlcoholExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+
+*TOBACCO
+
+*MODEL 1
+
+* MLE for sample selection model
+heckman TobaccoExp $Model1 , select (d_tobacco = $Model1) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..12],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1 
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 2
+
+* MLE for sample selection model
+heckman TobaccoExp $Model2 , select (d_tobacco = $Model2) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1 
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_alcohol==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm 
+
+*MODEL 3
+
+* MLE for sample selection model
+heckman TobaccoExp $Model3 , select (d_tobacco = $Model3) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..26],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1 
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 4
+
+* MLE for sample selection model
+heckman TobaccoExp $Model4 , select (d_tobacco = $Model4) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..28],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1 
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 5
+
+* MLE for sample selection model
+heckman TobaccoExp $Model5 , select (d_tobacco = $Model5) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1 
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 6
+
+* MLE for sample selection model
+heckman TobaccoExp $Model6 , select (d_tobacco = $Model6) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..20],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1 
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+*MODEL 7
+
+* MLE for sample selection model
+heckman TobaccoExp $Model7 , select (d_tobacco = $Model7) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..62],e(sigma)
+estimates store heckmlenorm
+scalar llhecknorm = e(ll)      /* Log-likelihood */
+
+* Save the Stata predictions: 
+* Distinguish between ystar=E[y*], ypos=E[y|I>0] and yall=E[y] 
+predict ystarhmlnorm, xb           /* E[y*] = x'b (Expected Expenditure regardless of whether they are observed in the selection equation*/ 
+predict yposhmlnorm, ycond         /* E[y|I>0] = E[y*|I>0] = x'b+c*lamda(z'a) (Expected Expenditure conditional on a positive value of the selection equation*/
+predict yallhmlnorm, yexpected     /* E[y] = PHI(z'a)*E[y|I>0] */
+
+* Compare predictions to actual for TobaccoExp > 0
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1 
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm if d_tobacco==1
+
+* Compare predictions to actual including zeroes
+sum TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+corr TobaccoExp ystarhmlnorm yposhmlnorm yallhmlnorm
+
+est store lha1 
+est table lha1, star
+
+drop  _est_lha1 yallhmlnorm yposhmlnorm ystarhmlnorm _est_heckmlenorm
+
+
+
+
+* DOUBLE HURDLE * 
+
+
+* ALCOHOL
+
+*MODEL 1
+
+* MLE for sample selection model
+heckman AlcoholExp $Model1 , select (d_alcohol = $Model1)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..12],e(sigma)
+
+ml model lf dhurdle_no0 (AlcoholExp = $Model1) (d_alcohol = $Model1) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (AlcoholExp = $Model1) (d_alcohol = $Model1) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 2
+
+* MLE for sample selection model
+heckman AlcoholExp $Model2 , select (d_alcohol = $Model2)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+
+ml model lf dhurdle_no0 (AlcoholExp = $Model2) (d_alcohol = $Model2) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (AlcoholExp = $Model2) (d_alcohol = $Model2) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 3
+
+* MLE for sample selection model
+heckman AlcoholExp $Model3 , select (d_alcohol = $Model3)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..26],e(sigma)
+
+ml model lf dhurdle_no0 (AlcoholExp = $Model3) (d_alcohol = $Model3) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (AlcoholExp = $Model3) (d_alcohol = $Model3) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 4
+
+* MLE for sample selection model
+heckman AlcoholExp $Model4 , select (d_alcohol = $Model4)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..28],e(sigma)
+
+ml model lf dhurdle_no0 (AlcoholExp = $Model4) (d_alcohol = $Model4) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (AlcoholExp = $Model4) (d_alcohol = $Model4) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 5
+
+* MLE for sample selection model
+heckman AlcoholExp $Model5 , select (d_alcohol = $Model5)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+
+ml model lf dhurdle_no0 (AlcoholExp = $Model5) (d_alcohol = $Model5) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (AlcoholExp = $Model5) (d_alcohol = $Model5) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 6
+
+* MLE for sample selection model
+heckman AlcoholExp $Model6 , select (d_alcohol = $Model6) iterate(50)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..20],e(sigma)
+
+ml model lf dhurdle_no0 (AlcoholExp = $Model6) (d_alcohol = $Model6) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (AlcoholExp = $Model6) (d_alcohol = $Model6) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 7
+
+* MLE for sample selection model
+heckman AlcoholExp $Model7 , select (d_alcohol = $Model7) iterate(20)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..62],e(sigma)
+
+ml model lf dhurdle_no0 (AlcoholExp = $Model7) (d_alcohol = $Model7) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(10)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (AlcoholExp = $Model7) (d_alcohol = $Model7) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(10)
+
+est store results 
+est table results, star
+
+* TOBACCO
+
+
+*MODEL 1
+
+* MLE for sample selection model
+heckman TobaccoExp $Model1 , select (d_tobacco = $Model1) iterate(30)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..12],e(sigma)
+
+ml model lf dhurdle_no0 (TobaccoExp = $Model1) (d_tobacco = $Model1) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (TobaccoExp = $Model1) (d_tobacco = $Model1) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 2
+
+* MLE for sample selection model
+heckman TobaccoExp $Model2 , select (d_tobacco = $Model2) iterate(30)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+
+ml model lf dhurdle_no0 (TobaccoExp = $Model2) (d_tobacco = $Model2) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (TobaccoExp = $Model2) (d_tobacco = $Model2) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 3
+
+* MLE for sample selection model
+heckman TobaccoExp $Model3 , select (d_tobacco = $Model3) iterate(30)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..26],e(sigma)
+
+ml model lf dhurdle_no0 (TobaccoExp = $Model3) (d_tobacco = $Model3) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (TobaccoExp = $Model3) (d_tobacco = $Model3) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 4
+
+* MLE for sample selection model
+heckman TobaccoExp $Model4 , select (d_tobacco = $Model4) iterate(30)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..28],e(sigma)
+
+ml model lf dhurdle_no0 (TobaccoExp = $Model4) (d_tobacco = $Model4) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (TobaccoExp = $Model4) (d_tobacco = $Model4) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 5
+
+* MLE for sample selection model
+heckman TobaccoExp $Model5 , select (d_tobacco = $Model5) iterate(30)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..18],e(sigma)
+
+ml model lf dhurdle_no0 (TobaccoExp = $Model5) (d_tobacco = $Model5) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (TobaccoExp = $Model5) (d_tobacco = $Model5) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 6
+
+* MLE for sample selection model
+heckman TobaccoExp $Model6 , select (d_tobacco = $Model6) iterate(30)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..20],e(sigma)
+
+ml model lf dhurdle_no0 (TobaccoExp = $Model6) (d_tobacco = $Model6) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (TobaccoExp = $Model6) (d_tobacco = $Model6) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
+
+*MODEL 7
+
+* MLE for sample selection model
+heckman TobaccoExp $Model7 , select (d_tobacco = $Model7) iterate(30)
+mat ini_heck=e(b)
+mat list ini_heck
+mat ini_heckman=ini_heck[1,1..62],e(sigma)
+
+ml model lf dhurdle_no0 (TobaccoExp = $Model7) (d_tobacco = $Model7) () 
+ml init ini_heckman, copy
+
+ml maximize, diff  iter(15)
+mat ini_new = e(b) 
+mat list ini_new
+mat iniv_new = ini_new,0 
+
+
+
+ml model lf dhurdle_no (TobaccoExp = $Model7) (d_tobacco = $Model7) () () 
+ml init iniv_new, copy
+ml maximize, diff iter(15)
+
+est store results 
+est table results, star
