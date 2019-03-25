@@ -40,8 +40,8 @@ class DataGen(keras.utils.Sequence):
         for name in all_masks:
             _mask_path = mask_path + name
             _mask_image = cv2.imread(_mask_path, -1)                                   # -1 reads the image as it is (unchanged).
-            _mask_image = cv2.resize(_mask_image, (self.image_size, self.image_size))  #128x128
-            _mask_image = np.expand_dims(_mask_image, axis=-1)
+            _mask_image = cv2.resize(_mask_image, (self.image_size, self.image_size))  # 128x128
+            _mask_image = np.expand_dims(_mask_image, axis=-1)                         # This means that the index that will be returned by expand_dims will be taken from the last axis.
             mask = np.maximum(mask, _mask_image)                                       # this copies all nuclei in a single layer
             
         image = image/255.0                                                            # this is to normalize the image
@@ -82,7 +82,7 @@ train_path = "dataset/stage1_train/"
 epochs = 5
 batch_size = 8
 
-train_ids = next(os.walk(train_path))[1]
+train_ids = next(os.walk(train_path))[1]               # os.walk returns a generator, that creates a tuple of values (current_path, directories in current_path, files in current_path).
 
 val_data_size = 10
 
