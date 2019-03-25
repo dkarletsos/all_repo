@@ -27,19 +27,19 @@ class DataGen(keras.utils.Sequence):
         self.image_size = image_size
         self.on_epoch_end()
     
-    def __load__(self, id_name):                                                       #loads a single image in a single mask using a single image_id 
+    def __load__(self, id_name):                                                        
         image_path = os.path.join(self.path, id_name, "images", id_name) + ".png"
         mask_path = os.path.join(self.path, id_name, "masks/")
         all_masks = os.listdir(mask_path)
         
-        image = cv2.imread(image_path, 1)
+        image = cv2.imread(image_path, 1)                                             # 1 stands for "open image in color"
         image = cv2.resize(image, (self.image_size, self.image_size))
         
         mask = np.zeros((self.image_size, self.image_size, 1))                        # 1 is the number of classes (1 as it is a nucleus)
         
         for name in all_masks:
             _mask_path = mask_path + name
-            _mask_image = cv2.imread(_mask_path, -1)                                   # -1 reads the image in gray-scale
+            _mask_image = cv2.imread(_mask_path, -1)                                   # -1 reads the image as it is (unchanged).
             _mask_image = cv2.resize(_mask_image, (self.image_size, self.image_size))  #128x128
             _mask_image = np.expand_dims(_mask_image, axis=-1)
             mask = np.maximum(mask, _mask_image)                                       # this copies all nuclei in a single layer
