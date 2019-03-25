@@ -107,7 +107,7 @@ ax.imshow(np.reshape(y[r], (image_size, image_size)), cmap="gray")              
 # Define the Convolutional Blocks #
 
 def down_block(x, filters, kernel_size=(3,3), padding="same", strides=1):
-    c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(x)
+    c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(x)          # (x) is the input
     c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
     p = keras.layers.MaxPool2D((2,2), (2,2))(c)
     return c, p
