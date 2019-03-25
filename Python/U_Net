@@ -71,7 +71,7 @@ class DataGen(keras.utils.Sequence):
             pass
         
     def __len__(self):
-        return int(np.ceil(len(self.ids)/float(self.batch_size)))
+        return int(np.ceil(len(self.ids)/float(self.batch_size)))                       # Return the ceiling of the input, element-wise. The ceil of the scalar x is the smallest integer i, such that i >= x.
         
     
 # Hyperparameters #
