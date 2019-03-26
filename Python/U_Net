@@ -109,7 +109,7 @@ ax.imshow(np.reshape(y[r], (image_size, image_size)), cmap="gray")              
 def down_block(x, filters, kernel_size=(3,3), padding="same", strides=1):
     c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(x)          # (x) is the input
     c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
-    p = keras.layers.MaxPool2D((2,2), (2,2))(c)
+    p = keras.layers.MaxPool2D((2,2), (2,2))(c)                                                                   # 2x2 columns and 2x2 stride
     return c, p
 
 def up_block(x, skip, filters, kernel_size=(3,3), padding="same", strides=1):
