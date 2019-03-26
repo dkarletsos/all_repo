@@ -35,7 +35,7 @@ class DataGen(keras.utils.Sequence):
         image = cv2.imread(image_path, 1)                                             # 1 stands for "open image in color"
         image = cv2.resize(image, (self.image_size, self.image_size))
         
-        mask = np.zeros((self.image_size, self.image_size, 1))                        # 1 is the number of classes (1 as it is a nucleus)
+        mask = np.zeros((self.image_size, self.image_size, 1))                        # 1 is the number of channels (1 as it is a nucleus black or white)
         
         for name in all_masks:
             _mask_path = mask_path + name
