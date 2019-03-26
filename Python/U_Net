@@ -83,7 +83,7 @@ batch_size = 8
 
 train_ids = next(os.walk(train_path))[1]               # os.walk returns a generator, that creates a tuple of values (current_path, directories in current_path, files in current_path).
 
-val_data_size = 10
+val_data_size = 16
 
 valid_ids = train_ids[:val_data_size]
 train_ids = train_ids[val_data_size:]
