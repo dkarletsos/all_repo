@@ -1,0 +1,329 @@
+install.packages("gdata")
+install.packages("doBy")
+install.packages("ggplot2")
+install.packages("metagen")
+install.packages("tidyr")
+install.packages("tables")
+install.packages("gridExtra")
+install.packages("stargazer")
+install.packages("kableExtra")
+install.packages("reshape")
+
+#set the PATH to perl interpreter
+perl <- "C:/strawberry/perl/bin/perl5.28.1.exe"
+
+setwd("C:/Users/dkarletsos/Desktop/Dimitris/SwissTPH/")
+getwd()
+
+library(gdata)
+library(doBy)
+library(ggplot2)
+
+function (file, header = TRUE, sep = ",", quote = "\"", dec = ".", 
+          fill = TRUE, comment.char = "", ...) 
+  read.table(file = file, header = header, sep = sep, quote = quote, 
+             dec = dec, fill = fill, comment.char = comment.char, ...)
+
+incidence <- read.csv('incidence.csv')
+prevalence <- read.csv('prevalence.csv')
+
+names(incidence)
+names(prevalence)
+
+summary(incidence)
+summary(prevalence)
+
+# subset zones: incidence
+incidence_zone1 <- subset(incidence, zone == "Zone 1") 
+incidence_zone2 <- subset(incidence, zone == "Zone 2")
+incidence_zoneall <- subset(incidence, zone == "Zone 1")
+
+# subset zones: prevalence
+prevalence_zone1 <- subset(prevalence, zone == "Zone 1")
+prevalence_zone2 <- subset(prevalence, zone == "Zone 2")
+prevalence_zoneall <- subset(prevalence, zone == "Zone 1")
+
+
+incidence_zoneall$no_intervention <- (incidence_zone1$no_intervention*0.6808 + incidence_zone2$no_intervention*0.3192) 
+incidence_zoneall$intervention_a <- (incidence_zone1$intervention_a*0.6808 + incidence_zone2$intervention_a*0.3192)
+incidence_zoneall$intervention_b <- (incidence_zone1$intervention_b*0.6808 + incidence_zone2$intervention_b*0.3192)
+incidence_zoneall$intervention_a_plus_b <- (incidence_zone1$intervention_a_plus_b*0.6808 + incidence_zone2$intervention_a_plus_b*0.3192)
+
+prevalence_zoneall$no_intervention <- (prevalence_zone1$no_intervention*0.6808 + prevalence_zone2$no_intervention*0.3192) 
+prevalence_zoneall$intervention_a <- (prevalence_zone1$intervention_a*0.6808 + prevalence_zone2$intervention_a*0.3192)
+prevalence_zoneall$intervention_b <- (prevalence_zone1$intervention_b*0.6808 + prevalence_zone2$intervention_b*0.3192)
+prevalence_zoneall$intervention_a_plus_b <- (prevalence_zone1$intervention_a_plus_b*0.6808 + prevalence_zone2$intervention_a_plus_b*0.3192)
+
+  
+# INCIDENCE GRAPH #
+
+incidence_zone <- list(incidence_zone1,incidence_zone2, incidence_zoneall)
+numlist <- list("Zone 1", "Zone 2", "All Zones")
+
+for (i in seq_along(incidence_zone)) {
+
+LegendTitle = "Interventions"
+
+incidence_linegraph <-  
+  ggplot(data=incidence_zone[[i]], aes(x=incidence_zone[[i]]$year, y = incidence_zone[[i]]$no_intervention)) +
+  geom_line(aes(x=incidence_zone[[i]]$year, y = incidence_zone[[i]]$no_intervention, col = "No Intervention"), size=1) +
+  geom_line(aes(x=incidence_zone[[i]]$year, y = incidence_zone[[i]]$intervention_a, col = "A")) +
+  geom_line(aes(x=incidence_zone[[i]]$year, y = incidence_zone[[i]]$intervention_b, col = "B")) +
+  geom_line(aes(x=incidence_zone[[i]]$year, y = incidence_zone[[i]]$intervention_a_plus_b, col = "B+A")) +
+  ggtitle("Incidence", numlist[[i]]) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y="Incidence \n (1,000 pop/year)", x = "Year", colour= "Intervention", subtitle = numlist[[i]]) +
+  scale_color_manual(name = LegendTitle, values = c("#999999","#56B4E9", "#E69F00", "red")) +
+  theme(plot.title = element_text(hjust = 0.5, margin = margin(t = 0, r = 0, b = 15, l = 0), size = 20)) +
+  theme(plot.subtitle = element_text(hjust = 0.5, margin = margin(t = 0, r = 0, b = 15, l = 0), size = 15, color = "#000066")) +
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+  theme(axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  geom_vline(xintercept=2019, linetype="dashed")  
+
+print(incidence_linegraph)
+
+}
+
+# PREVALENCE GRAPH #
+
+prevalence_zone <- list(prevalence_zone1,prevalence_zone2, prevalence_zoneall)
+numlist <- list("Zone 1", "Zone 2", "All Zones")
+
+for (i in seq_along(prevalence_zone)) {
+  
+  LegendTitle = "Interventions"
+  
+  prevalence_linegraph <-  
+    ggplot(data=prevalence_zone[[i]], aes(x=prevalence_zone[[i]]$year, y = prevalence_zone[[i]]$no_intervention)) +
+    geom_line(aes(x=prevalence_zone[[i]]$year, y = prevalence_zone[[i]]$no_intervention, col = "No Intervention"), size=1) +
+    geom_line(aes(x=prevalence_zone[[i]]$year, y = prevalence_zone[[i]]$intervention_a, col = "A")) +
+    geom_line(aes(x=prevalence_zone[[i]]$year, y = prevalence_zone[[i]]$intervention_b, col = "B")) +
+    geom_line(aes(x=prevalence_zone[[i]]$year, y = prevalence_zone[[i]]$intervention_a_plus_b, col = "B+A")) +
+    ggtitle("Prevalence", numlist[[i]]) + 
+    theme(plot.title = element_text(hjust = 0.5)) +
+    labs(y="Prevalence \n (% pop)", x = "Year", colour= "Intervention", subtitle = numlist[[i]]) +
+    scale_color_manual(name = LegendTitle, values = c("#999999","#56B4E9", "#E69F00", "red")) +
+    theme(plot.title = element_text(hjust = 0.5, margin = margin(t = 0, r = 0, b = 15, l = 0), size = 20)) +
+    theme(plot.subtitle = element_text(hjust = 0.5, margin = margin(t = 0, r = 0, b = 15, l = 0), size = 15, color = "#000066")) +
+    theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+    theme(axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+    theme(axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+    geom_vline(xintercept=2019, linetype="dashed")  
+  
+  print(prevalence_linegraph)
+  
+}
+
+# CALCULATING DIFFERENCES IN YEARLY INCIDENCE AND PREVALENCE, TOTAL #
+
+incidence$diff_A <- incidence$no_intervention - incidence$intervention_a  
+incidence$diff_B <- incidence$no_intervention - incidence$intervention_b
+incidence$diff_A_plus_B <- incidence$no_intervention - incidence$intervention_a_plus_b
+
+incidence$averted_A = incidence$diff_A * incidence$population/1000
+incidence$averted_B = incidence$diff_B * incidence$population/1000
+incidence$averted_A_plus_B = incidence$diff_A_plus_B * incidence$population/1000
+
+prevalence$diff_A <- prevalence$no_intervention - prevalence$intervention_a  
+prevalence$diff_B <- prevalence$no_intervention - prevalence$intervention_b
+prevalence$diff_A_plus_B <- prevalence$no_intervention - prevalence$intervention_a_plus_b
+
+prevalence$averted_A = prevalence$diff_A * prevalence$population
+prevalence$averted_B = prevalence$diff_B * prevalence$population
+prevalence$averted_A_plus_B = prevalence$diff_A_plus_B * prevalence$population
+
+incidence_zone1 <- subset(incidence, zone == "Zone 1") 
+incidence_zone2 <- subset(incidence, zone == "Zone 2")
+incidence_zoneall <- subset(incidence, zone == "Zone 1")
+
+
+##################################################################################
+
+# INFECTIONS AVERTED GRAPH #
+
+incidence_post_1  <- subset(incidence, year >= 2019 & zone == "Zone 1")
+incidence_post_all <- subset(incidence, year >= 2019)
+
+incidence
+
+Year <- incidence_post_1$year
+A <- incidence_post_all$averted_A
+B <- incidence_post_all$averted_B
+A_plus_B <- incidence_post_all$averted_A_plus_B
+df <- data.frame(Year, A, B, A_plus_B)
+
+df
+
+colnames(df)[4] <- "B + A"
+
+require(reshape)
+df.long_denominator <- melt(df, id = c("Year"))
+
+df.long_denominator
+
+yearsums <- cast(df.long, Year~variable, sum)
+
+df.long_averted <- melt(yearsums, id = c("Year"))
+
+
+colnames(df.long_averted)[3] <- "Interventions"
+colnames(df.long_averted)[2] <- "Infections_Averted"
+
+
+df.long_averted
+
+averted_cases_per_year <-
+ggplot(data = df.long_averted, aes(x = Year, y = Infections_Averted, fill = Interventions )) +
+  geom_col(position = position_dodge()) +
+  scale_fill_manual(values=c("#999999","#56B4E9", "#E69F00")) +
+  ggtitle("Total Infections Averted") +
+  theme(plot.title = element_text(hjust = 0.5, margin = margin(t = 0, r = 0, b = 20, l = 0), size=20)) +
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+  theme(axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)))
+  #geom_vline(xintercept=2019, linetype="dashed")
+
+print(averted_cases_per_year)
+
+
+infections_averted <- df.long_denominator
+
+################################################################################
+
+incidence_zone1_post <- subset(incidence_zone1, Year>=2019)
+incidence_zone2_post <- subset(incidence_zone2, Year>=2019)
+
+
+averted <- data.frame(incidence_zone2_post$year, incidence_zone1_post$averted_A, incidence_zone2_post$averted_A, incidence_zone1_post$averted_B, incidence_zone2_post$averted_B, incidence_zone1_post$averted_A_plus_B, incidence_zone2_post$averted_A_plus_B )
+
+colnames(averted)[1] <- "Year"
+colnames(averted)[2] <- "Zone 1"
+colnames(averted)[3] <- "Zone 2"
+colnames(averted)[4] <- "Zone 1"
+colnames(averted)[5] <- "Zone 2"
+colnames(averted)[6] <- "Zone 1"
+colnames(averted)[7] <- "Zone 2"
+
+averted
+
+#library(stargazer)
+#stargazer(averted_A[1:18,], summary=FALSE, rownames=FALSE, out = 'foo.html', digit.separator = "", digits = 2, title = "Infections Averted by Zone and Intervention")
+
+require(kableExtra)
+kable(averted, "html", digits = c(0, 2, 2, 2, 2, 2, 2)) %>%
+  add_header_above(c(" " = 2, "Intervention A" = 2, "Intervention B" = 2, "Intervention B+A" = 2)) %>%
+  add_header_above(c(" " = 3, "TOTAL INFECTIONS AVERTED" = 4, " "= 1)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  cat(., file = "averted.html")
+
+
+
+
+################################################################################
+
+
+incidence_post_all$total_cost_A <- incidence_post_all$population * 0.8 * (3.5 * 1/4)
+
+incidence_post_all$total_cost_B <- incidence_post_all$population * 0.85 * 3
+
+incidence_post_all$cost_inf_avert_A <-  incidence_post_all$total_cost_A / incidence_post_all$averted_A
+  
+incidence_post_all$cost_inf_avert_B <- incidence_post_all$total_cost_B / incidence_post_all$averted_B
+
+
+
+# TOTAL COST GRAPH #
+
+Year <- incidence_post_1$year
+A <- incidence_post_all$total_cost_A
+B <- incidence_post_all$total_cost_B
+A_plus_B <- (incidence_post_all$total_cost_A + incidence_post_all$total_cost_B)
+df <- data.frame(Year, A, B, A_plus_B)
+
+df
+
+colnames(df)[4] <- "B + A"
+
+require(reshape)
+df.long_numerator <- melt(df, id = c("Year"))
+
+df.long_numerator
+
+yearsums <- cast(df.long_numerator, Year~variable, sum)
+
+df.long_cost <- melt(yearsums, id = c("Year"))
+
+
+colnames(df.long_cost)[3] <- "Interventions"
+colnames(df.long_cost)[2] <- "USD"
+
+
+df.long_cost
+
+total_cost_per_year <-
+  ggplot(data = df.long_cost, aes(x = Year, y = USD, fill = Interventions )) +
+  geom_col(position = position_dodge()) +
+  scale_fill_manual(values=c("#999999","#56B4E9", "#E69F00")) +
+  ggtitle("Total Cost") +
+  theme(plot.title = element_text(hjust = 0.5, margin = margin(t = 0, r = 0, b = 20, l = 0), size=20)) +
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+  theme(axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  scale_y_continuous(name="US $", labels = scales::comma)
+#geom_vline(xintercept=2019, linetype="dashed")
+
+print(total_cost_per_year)
+
+cost <- df.long_numerator
+
+
+# COST PER INFECTION AVERTED GRAPH #
+
+cost_yearsums <- cast(cost, Year~variable, sum)
+cost_melt <- melt(cost_yearsums, id = c("Year"))
+
+infect_avert_yearsums <- cast(infections_averted, Year~variable, sum)
+infect_avert_yearsums_melt <- melt(infect_avert_yearsums, id = c("Year"))
+
+cost_avert <- data.frame(cost_melt, infect_avert_yearsums_melt$value)
+
+colnames(cost_avert)[2] <- "USD"
+colnames(cost_avert)[3] <- "Interventions"
+colnames(cost_avert)[4] <- "Infections Averted"
+
+cost_avert$cost_per_avert <- cost_avert$USD/cost_avert$`Infections Averted`
+colnames(cost_avert)[5] <- "Cost per Infection Averted"
+
+
+total_cost_per_avert <-
+  ggplot(data = cost_avert, aes(x = Year, y = `Cost per Infection Averted`, fill = Interventions )) +
+  geom_col(position = position_dodge()) +
+  scale_fill_manual(values=c("#999999","#56B4E9", "#E69F00")) +
+  ggtitle("Total Cost per Infection Averted") +
+  theme(plot.title = element_text(hjust = 0.5, margin = margin(t = 0, r = 0, b = 20, l = 0), size=20)) +
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")) +
+  theme(axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0))) +
+  theme(axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0))) +
+  scale_y_continuous(name="US $", labels = scales::comma)
+#geom_vline(xintercept=2019, linetype="dashed")
+
+print(total_cost_per_avert)
+
+
+
+cost_avert_table <- data.frame(cost_avert$Year, cost_avert$Interventions, cost_avert$`Cost per Infection Averted`)
+
+colnames(cost_avert_table)[1] <- "Year"
+colnames(cost_avert_table)[2] <- "Intervention"
+colnames(cost_avert_table)[3] <- "Unit Cost"
+
+
+cost_avert_table <- cast(cost_avert_table, Year, sum)
+
+require(kableExtra)
+kable(cost_avert_table, "html", digits = c(0, 0, 2), align = "c", format.args = list(decimal.mark = '.', big.mark = ",")) %>%
+  add_header_above(c("COST PER INFECTION AVERTED" = 3)) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  cat(., file = "averted.html")
+
