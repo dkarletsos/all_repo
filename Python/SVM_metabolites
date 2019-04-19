@@ -1,0 +1,238 @@
+#### SUPPORT VECTOR MACHINE (SVM) CLASSIFIER TO IDENTIFY METABOLITES PREDICTING PRETERM BIRTH ####
+
+from __future__ import print_function
+import os
+import csv
+import numpy as np
+import scipy
+import random
+from numpy import genfromtxt
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import classification_report
+from scipy.stats import ttest_ind, ttest_ind_from_stats
+from scipy.special import stdtr
+
+#I open the dataset in two blocks because otherwise the p-value iteration gets stuck
+df_1 = pd.read_csv("C:/Users/dkarletsos/Desktop/Dimitris/CMPS/preterm_1_of_2.csv", header=0)
+df_2 = pd.read_csv("C:/Users/dkarletsos/Desktop/Dimitris/CMPS/preterm_2_of_2.csv", header=0)
+
+df_1.loc[df_1['Condition']=='Preterm', ['Condition']] = '1.0'
+#df.loc[df['Condition']=='Preeclampsia', ['Condition']] = '1.0'
+df_1.loc[df_1['Condition']=='UncomplicatedTerm', ['Condition']] = '0.0'
+
+df_2.loc[df_2['Condition']=='Preterm', ['Condition']] = '1.0'
+#df.loc[df['Condition']=='Preeclampsia', ['Condition']] = '1.0'
+df_2.loc[df_2['Condition']=='UncomplicatedTerm', ['Condition']] = '0.0'
+
+
+#print(df.head(5))
+
+df_1 = df_1.fillna(random.randint(1,101))
+scaler = MinMaxScaler()
+df_1.loc[:, df_1.columns != 'Condition'] = scaler.fit_transform(df_1.loc[:, df_1.columns != 'Condition'])
+#df = df.replace(0, 0.000001)
+
+df_2 = df_2.fillna(random.randint(1,101))
+scaler = MinMaxScaler()
+df_2.loc[:, df_2.columns != 'Condition'] = scaler.fit_transform(df_2.loc[:, df_2.columns != 'Condition'])
+#df = df.replace(0, 0.000001)
+
+
+
+#df = scaler.transform(X_data)
+#print(df.head(15))
+
+# get a list of all columns in the dataframe without the Group column
+column_list_1 = [x for x in df_1.columns if x != 'Condition']
+# create an empty dictionary
+t_test_results_1 = {}
+# loop over column_list and execute code
+for column in column_list_1:
+    group1 = df_1.where(df_1.Condition== '1.0').dropna()[column]
+    group2 = df_1.where(df_1.Condition== '0.0').dropna()[column]
+#    # add the output to the dictionary 
+    t_test_results_1[column] = scipy.stats.ttest_ind(group1,group2)
+results_df_1 = pd.DataFrame.from_dict(t_test_results_1,orient='Index')
+results_df_1.columns = ['statistic','pvalue']
+
+# get a list of all columns in the dataframe without the Group column
+column_list_2 = [x for x in df_2.columns if x != 'Condition']
+# create an empty dictionary
+t_test_results_2 = {}
+# loop over column_list and execute code
+for column in column_list_2:
+    group1 = df_2.where(df_2.Condition== '1.0').dropna()[column]
+    group2 = df_2.where(df_2.Condition== '0.0').dropna()[column]
+#    # add the output to the dictionary 
+    t_test_results_2[column] = scipy.stats.ttest_ind(group1,group2)
+results_df_2 = pd.DataFrame.from_dict(t_test_results_2,orient='Index')
+results_df_2.columns = ['statistic','pvalue']
+
+print(results_df_1)
+print(results_df_2)
+
+# create a boolean array equals True if p-value < 0.05
+results = results_df_1.T.join(results_df_2.T, how='outer')
+print(results)
+significant = results.iloc[[1]]<0.05
+print(significant)
+
+print(significant.shape)
+
+print(significant.T.shape)
+
+# merging the two data frames together
+X_data = df_1.loc[:, df_1.columns != 'Condition'].join(df_2.loc[:, df_2.columns != 'Condition'], how='outer')
+
+print(X_data.shape)
+
+X_data_signif = X_data.T.join(significant.T)
+
+print(X_data_significant.iloc[:,-1])
+
+X_data_significant = X_data_signif[X_data_signif.pvalue]
+X_data_significant = X_data_significant.drop(['pvalue'], axis=1)
+X_data_significant = X_data_significant.T
+
+#print(X_data)
+print(X_data_significant.shape)
+print(X_data_significant)
+
+#print(results_df)
+#print(results_df.iloc[0:10, 0:10])
+
+X_data = X_data_significant
+y_data = np.ravel(df_1.loc[:, df_1.columns == 'Condition'])
+
+print(X_data.shape)
+print(y_data.shape)
+
+# SVM Classifier
+
+X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, test_size = 0.1, random_state = 7)
+
+#pca = PCA(n_components=1000)
+#X_train = pca.fit_transform(X_train)
+#X_test = pca.transform(X_test)
+
+# Set the parameters by cross-validation
+
+#tuned_parameters = [{'kernel': ['rbf'], 'C': [0.01, 0.1, 1, 10, 100, 300, 1000, 2000, 3000, 4000]},
+
+
+tuned_parameters = [{'kernel': ['rbf'], 'gamma': [2**(-15), 2**(-13), 2**(-11), 2**(-9), 2**(-7), 2**(-5), 2**(-3), 2**(-1), 2**(1), 2**(3), 2**(5)],
+                     'C': [2**(-5), 2**(-3), 2**(-1), 2**(1), 2**(3), 2**(5), 2**(7), 2**(9), 2**(11), 2**(13), 2**(15)]},
+                    {'kernel': ['linear'], 'C': [2**(-5), 2**(-3), 2**(-1), 2**(1), 2**(3), 2**(5), 2**(7), 2**(9), 2**(11), 2**(13), 2**(15)]}]
+
+tuned_parameters = [{'kernel': ['linear'], 'C': [2**(-5), 2**(-3), 2**(-1), 2**(1), 2**(3), 2**(5), 2**(7), 2**(9), 2**(11), 2**(13), 2**(15)]}]
+
+#tuned_parameters = [{'kernel': ['poly'], 'C': [2**(-5), 2**(-3), 2**(-1), 2**(1), 2**(3), 2**(5), 2**(7), 2**(9), 2**(11), 2**(13), 2**(15)]}]
+
+
+scores = ['precision', 'recall']
+
+for score in scores:
+    print("# Tuning hyper-parameters for %s" % score)
+    print()
+
+    clf = GridSearchCV(SVC(), tuned_parameters, cv=10,                        # cross validation folding
+                       scoring='%s_macro' % score)
+
+    clf.fit(X_train, y_train)
+
+    print("Best parameters set found on development set:")
+    print()
+    print(clf.best_params_)
+    print()
+    print("Grid scores on development set:")
+    print()
+    means = clf.cv_results_['mean_test_score']
+    stds = clf.cv_results_['std_test_score']
+    for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+        print("%0.3f (+/-%0.03f) for %r"
+              % (mean, std * 2, params))
+    print()
+
+    print("Detailed classification report:")
+    print()
+    print("The model is trained on the full development set.")
+    print("The scores are computed on the full evaluation set.")
+    print()
+    y_true, y_pred = y_test, clf.predict(X_test)
+    print(classification_report(y_true, y_pred))
+    print()
+    
+
+print(y_pred)
+print(y_test)
+
+
+print(clf.best_estimator_.coef_.shape)
+
+print(X_data_significant.columns)
+
+header = pd.DataFrame(X_data_significant.columns)
+
+print(header.shape)
+ 
+print(clf.best_estimator_.coef_)
+print(clf.best_estimator_.coef_.shape)
+weights = pd.DataFrame(clf.best_estimator_.coef_)
+weights.columns = X_data_significant.columns
+
+# I do what suggested here (pioneering paper): https://link.springer.com/content/pdf/10.1023/A:1012487302797.pdf
+weights_sq = weights**2
+weights_sq.columns = X_data_significant.columns
+
+weights_sq.head(5)
+#print(header)
+
+important = weights_sq.iloc[[0]]>(weights_sq.iloc[0].mean()-(weights_sq.iloc[0].std()))
+
+important = pd.DataFrame(important.T, columns=['important'], dtype=bool)
+
+print(important.T.shape)
+print(X_data.T.shape)
+
+print(important.head(5))
+
+#important.T.columns.map(type)
+
+
+#name = pd.DataFrame(['name'])
+
+#important.T.columns = important.T.columns.astype(str)
+#important.T.columns = important.T.columns.map(str)
+
+#important.T.columns = name
+
+#important.T.rename(columns={list(important.T)[-1]:'col1_new_name'}, inplace=True)
+
+#important.T = important.T.rename(columns = {0: 'protein'})
+
+#importantT.rename(columns = {'0':'important'}, inplace = True)
+#print(important.T.head(5))
+#print(X_data.head(5))
+
+
+#X_data_imp = X_data.T.join(important.T, how='left', lsuffix=' ', rsuffix=' ')
+
+#X_data_imp = X_data.join(important, on="key_or_keys")
+
+#X_data_imp.head(5)
+
+
+
+
+
+#print(X_data_imp.iloc[:,-1])
+
+#X_data_important = X_data_imp[X_data_imp.0]
+#X_data_important = X_data_important.drop(['pvalue'], axis=1)
+#X_data_important = X_data_important.T
