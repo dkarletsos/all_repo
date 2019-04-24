@@ -254,9 +254,19 @@ y_test = list(y_test)
 print(y_pred)
 print(y_test)
 
-# CONFUSION MATRIX
+y_pred=['Uncomplicated' if x==0 else x for x in y_pred]
+y_pred=['Preterm' if x==1 else x for x in y_pred]
+y_pred=['Preeclampsia' if x==2 else x for x in y_pred]
+
+y_test=['Uncomplicated' if x==0 else x for x in y_test]
+y_test=['Preterm' if x==1 else x for x in y_test]
+y_test=['Preeclampsia' if x==2 else x for x in y_test]
+
+print(y_test)
+print(y_pred)
 
 import pandas as pd
+labels = ["uncomplicated", "preterm", "preeclampsia"]
 y_test = pd.Series(y_test, name='Actual')
 y_pred = pd.Series(y_pred, name='Predicted')
 df_confusion = pd.crosstab(y_test, y_pred)
